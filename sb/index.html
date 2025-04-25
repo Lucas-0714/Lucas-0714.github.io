@@ -3,6 +3,12 @@
 <html lang="zh_TW">
   <head>
     <title>SB</title>
+      <style>
+        #targetText {
+          font-size: 1.5em;
+          margin-bottom: 10px;
+        }
+     </style>
   </head>
   <body>
     <br>
@@ -15,6 +21,24 @@
         <name style="font-size:30px;">Smart Buddy (聰明夥伴)</name>
       </div>
     </intro>
+    <name>
+      <div id="targetText">×××是SB</div>
+      <input type="text" id="inputText" placeholder="×××">
+      <button id="updateButton">載入</button>
+    </name>
     <sign>GitHub Pages Lucas-0714</sign>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+      const targetTextElement = document.getElementById('targetText');
+      const inputTextElement = document.getElementById('inputText');
+      const updateButtonElement = document.getElementById('updateButton');
+      
+      updateButtonElement.addEventListener('click', function() {
+        const newText = inputTextElement.value + '是SB';
+        targetTextElement.textContent = newText;
+        inputTextElement.value = ''; // 清空輸入框 (可選)
+        });
+      });
+    </script>
   </body>
 </html>
