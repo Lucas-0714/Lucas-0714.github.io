@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圈圈叉叉 (雙人對打)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url('https://i.imgur.com/9DXLRfW.jpeg'); /* 素色背景 */
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #a8c9a5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            cursor: pointer;
+        }
+        .controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #result {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        #player-turn {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>圈圈叉叉 (雙人對打)</h1>
+    <div id="player-turn">輪到玩家 X</div>
+    <div id="result"></div>
+    <div class="container">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <div class="controls">
+        <button id="restart-button">重新開始</button>
+    </div>
+
+    <script>
+        const cells = document.querySelectorAll('.cell');
+        const resultDisplay = document.getElementById('result');
+        const restartButton = document.getElementById('restart-button');
+        const playerTurnDisplay = document.getElementById('player-turn');
+
+        let currentPlayer = 'X';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        function handleCellClick(clickedCellEvent) {
+            const clickedCell = clickedCellEvent.target;
+            const clickedCellIndex = parseInt(clickedCell.dataset.index);
+
+            if (board[clickedCellIndex] !== '' || !gameActive) {
+                return;
+            }
+
+            board[clickedCellIndex] = currentPlayer;
+            clickedCell.textContent = currentPlayer;
+            clickedCell.classList.add(currentPlayer === 'X' ? 'playerX' : 'playerO');
+
+            checkWin();
+            if (gameActive) {
+                switchPlayer();
+            }
+        }
+
+        function checkWin() {
+            for (let i = 0; i <= 7; i++) {
+                const winCondition = winningConditions[i];
+                const a = board[winCondition[0]];
+                const b = board[winCondition[1]];
+                const c = board[winCondition[2]];
+                if (a === '' || b === '' || c === '') {
+                    continue;
+                }
+                if (a === b && b === c) {
+                    gameActive = false;
+                    resultDisplay.textContent = `玩家 ${currentPlayer} 贏了！`;
+                    return;
+                }
+            }
+
+            if (!board.includes('')) {
+                gameActive = false;
+                resultDisplay.textContent = '平手！';
+            }
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            playerTurnDisplay.textContent = `輪到玩家 ${currentPlayer}`;
+        }
+
+        function startGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            resultDisplay.textContent = '';
+            playerTurnDisplay.textContent = '輪到玩家 X';
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('playerX', 'playerO');
+            });
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        restartButton.addEventListener('click', startGame);
+
+        // 遊戲開始時初始化
+        startGame();
+    </script>
+</body>
+</html>
