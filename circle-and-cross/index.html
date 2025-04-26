@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>畫布</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+        .toolbox {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .tool-button, #clearButton, #saveButton, #loadButton {
+            padding: 8px 12px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+        .tool-button.active, #eraserButton.active {
+            background-color: #ddd;
+        }
+        #colorPicker {
+            width: 80px;
+            height: 40px;
+        }
+        #eraserButton {
+            padding: 8px 12px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+        #eraserSize {
+            width: 50px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #coloringCanvas {
+            display: grid;
+            grid-template-columns: repeat(100, 1fr);
+            grid-template-rows: repeat(100, 1fr);
+            width: 90vw;
+            height: 90vw;
+            border: 1px solid #ccc;
+            user-select: none;
+            touch-action: none;
+        }
+        .grid-cell {
+            width: 100%;
+            height: 100%;
+            background-color: #eee;
+            border: 1px solid #f0f0f0;
+            box-sizing: border-box;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <h1>畫布</h1>
+
+    <div class="controls">
+        <div>
+            <label for="colorPicker">選擇顏色：</label>
+            <input type="color" id="colorPicker" value="#000000">
+        </div>
+        <button id="eraserButton">橡皮擦</button>
+        <div>
+            <label for="eraserSize">尺寸:</label>
+            <input type="number" id="eraserSize" value="1" min="1" max="10" step="1">
+        </div>
+        <div class="toolbox">
+            <button id="clearButton">全部清除</button>
+            <button id="lineTool" class="tool-button">直線</button>
+            <button id="rectTool" class="tool-button">矩形</button>
+            <button id="circleTool" class="tool-button">圓形</button>
+        </div>
+        <button id="saveButton">儲存</button>
+        <button id="loadButton">載入</button>
+    </div>
+
+    <div id="coloringCanvas">
+        </div>
+
+    <script>
+        const colorPicker = document.getElementById('colorPicker');
+        const eraserButton = document.getElementById('eraserButton');
+        const eraserSizeInput = document.getElementById('eraserSize');
+        const clearButton = document.getElementById('clearButton');
+        const saveButton = document.getElementById('saveButton');
+        const loadButton = document.getElementById('loadButton');
+        const lineToolButton = document.getElementById('lineTool');
+        const rectToolButton = document.getElementById('rectTool');
+        const circleToolButton = document.getElementById('circleTool');
+        const coloringCanvas = document.getElementById('coloringCanvas');
+        const undoButton = document.createElement('button'); // 創建復原按鈕
+        undoButton.textContent = '復原';
+        undoButton.id = 'undoButton';
+
+        const controlsDiv = document.querySelector('.controls'); // 找到 controls 的 div
+        controlsDiv.querySelector('.toolbox').appendChild(undoButton); // 將復原按鈕添加到 toolbox 中
+
+        let currentColor = colorPicker.value;
+        let isDrawing = false;
+        let isErasing = false;
+        const eraseColor = '#eee';
+        let lastTouchedCell = null;
+        let eraserSize = parseInt(eraserSizeInput.value);
+        let currentTool = 'paint'; // 預設工具為塗色 (paint)
+        let startCell = null;
+        let history = []; // 儲存畫布歷史狀態的陣列
+        const maxHistorySize = 10; // 限制復原的步數
+
+        // 儲存畫布狀態到歷史記錄
+        function saveState() {
+            const cellColors = Array.from(coloringCanvas.children).map(cell => cell.style.backgroundColor);
+            history.push(cellColors);
+            if (history.length > maxHistorySize) {
+                history.shift(); // 移除最早的記錄
+            }
+        }
+
+        // 從歷史記錄載入前一個畫布狀態
+        function undo() {
+            if (history.length > 1) {
+                history.pop(); // 移除當前狀態
+                const previousState = history[history.length - 1];
+                const cells = coloringCanvas.children;
+                if (previousState.length === cells.length) {
+                    for (let i = 0; i < cells.length; i++) {
+                        cells[i].style.backgroundColor = previousState[i];
+                    }
+                }
+            }
+        }
+
+        // 監聽復原按鈕的點擊
+        undoButton.addEventListener('click', undo);
+
+        // 監聽顏色選擇器的變化
+        colorPicker.addEventListener('input', (event) => {
+            currentColor = event.target.value;
+            setActiveTool('paint');
+        });
+
+        // 監聽橡皮擦按鈕的點擊
+        eraserButton.addEventListener('click', () => {
+            isErasing = !isErasing;
+            eraserButton.classList.toggle('active', isErasing);
+            setActiveTool(isErasing ? 'erase' : 'paint');
+        });
+
+        // 監聽橡皮擦尺寸輸入框的變化
+        eraserSizeInput.addEventListener('change', (event) => {
+            eraserSize = parseInt(event.target.value);
+            if (eraserSize < 1) {
+                eraserSize = 1;
+                eraserSizeInput.value = 1;
+            } else if (eraserSize > 10) {
+                eraserSize = 10;
+                eraserSizeInput.value = 10;
+            }
+        });
+
+        // 監聽全部清除按鈕的點擊
+        clearButton.addEventListener('click', () => {
+            saveState(); // 儲存清除前的狀態
+            const cells = coloringCanvas.children;
+            for (let i = 0; i < cells.length; i++) {
+                cells[i].style.backgroundColor = eraseColor;
+            }
+        });
+
+        // 監聽儲存按鈕的點擊
+        saveButton.addEventListener('click', saveCanvas);
+
+        // 監聽載入按鈕的點擊
+        loadButton.addEventListener('click', loadCanvas);
+
+        // 監聽直線工具按鈕的點擊
+        lineToolButton.addEventListener('click', () => {
+            setActiveTool('line');
+        });
+
+        // 監聽矩形工具按鈕的點擊
+        rectToolButton.addEventListener('click', () => {
+            setActiveTool('rect');
+        });
+
+        // 監聽圓形工具按鈕的點擊
+        circleToolButton.addEventListener('click', () => {
+            setActiveTool('circle');
+        });
+
+        function setActiveTool(tool) {
+            currentTool = tool;
+            eraserButton.classList.remove('active');
+            lineToolButton.classList.remove('active');
+            rectToolButton.classList.remove('active');
+            circleToolButton.classList.remove('active');
+            isErasing = false;
+
+            if (tool === 'erase') {
+                eraserButton.classList.add('active');
+            } else if (tool === 'line') {
+                lineToolButton.classList.add('active');
+            } else if (tool === 'rect') {
+                rectToolButton.classList.add('active');
+            } else if (tool === 'circle') {
+                circleToolButton.classList.add('active');
+            }
+        }
+
+        function getCellIndices(cell) {
+            if (!cell || !cell.classList.contains('grid-cell')) return null;
+            const index = Array.from(coloringCanvas.children).indexOf(cell);
+            const row = Math.floor(index / 100);
+            const col = index % 100;
+            return { row, col };
+        }
+
+        function getCellsToErase(centerCell, size) {
+            if (!centerCell) return [];
+            const indices = getCellIndices(centerCell);
+            if (!indices) return [];
+            const { row: centerRow, col: centerCol } = indices;
+            const cellsToErase = [];
+            const children = coloringCanvas.children;
+
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const row = centerRow + i - Math.floor(size / 2);
+                    const col = centerCol + j - Math.floor(size / 2);
+
+                    if (row >= 0 && row < 100 && col >= 0 && col < 100) {
+                        const index = row * 100 + col;
+                        cellsToErase.push(children[index]);
+                    }
+                }
+            }
+            return cellsToErase;
+        }
+
+        function colorCell(cell, color) {
+            if (cell && cell.classList.contains('grid-cell')) {
+                cell.style.backgroundColor = color;
+            }
+        }
+
+        function drawLine(start, end, color) {
+            saveState(); // 儲存繪製前的狀態
+            // 簡單的直線演算法
+            const dx = Math.abs(end.col - start.col);
+            const dy = Math.abs(end.row - start.row);
+            const sx = (start.col < end.col) ? 1 : -1;
+            const sy = (start.row < end.row) ? 1 : -1;
+            let err = dx - dy;
+
+            let currentCol = start.col;
+            let currentRow = start.row;
+
+            while (true) {
+                const index = currentRow * 100 + currentCol;
+                const cell = coloringCanvas.children[index];
+                colorCell(cell, color);
+
+                if (currentCol === end.col && currentRow === end.row) break;
+                let e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; currentCol += sx; }
+                if (e2 < dx) { err += dx; currentRow += sy; }
+            }
+        }
+
+        function drawRectangle(start, end, color) {
+            saveState(); // 儲存繪製前的狀態
+            const minRow = Math.min(start.row, end.row);
+            const maxRow = Math.max(start.row, end.row);
+            const minCol = Math.min(start.col, end.col);
+            const maxCol = Math.max(start.col, end.col);
+
+            for (let i = minRow; i <= maxRow; i++) {
+                for (let j = minCol; j <= maxCol; j++) {
+                    const index = i * 100 + j;
+                    const cell = coloringCanvas.children[index];
+                    colorCell(cell, color);
+                }
+            }
+        }
+
+        function drawCircle(center, radius, color) {
+            saveState(); // 儲存繪製前的狀態
+            const centerRow = center.row;
+            const centerCol = center.col;
+            const roundedRadius = Math.round(radius);
+
+            for (let row = centerRow - roundedRadius; row <= centerRow + roundedRadius; row++) {
+                for (let col = centerCol - roundedRadius; col <= centerCol + roundedRadius; col++) {
+                    const distanceSquared = (row - centerRow) ** 2 + (col - centerCol) ** 2;
+                    if (distanceSquared <= roundedRadius ** 2) {
+                        if (row >= 0 && row < 100 && col >= 0 && col < 100) {
+                            const index = row * 100 + col;
+                            const cell = coloringCanvas.children[index];
+                            colorCell(cell, color);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 滑鼠和觸控事件處理 (整合所有工具)
+        coloringCanvas.addEventListener('mousedown', (event) => {
+            isDrawing = true;
+            startCell = event.target.classList.contains('grid-cell') ? getCellIndices(event.target) : null;
+
+            if (currentTool === 'erase' && startCell) {
+                const cellsToErase = getCellsToErase(event.target, eraserSize);
+                const affectedCells = [];
+                cellsToErase.forEach(cell => {
+                    affectedCells.push({ cell: cell, originalColor: cell.style.backgroundColor });
+                    colorCell(cell, eraseColor);
+                });
+                saveState(); // 儲存橡皮擦操作後的狀態
+            } else if (currentTool === 'paint' && startCell) {
+                saveState(); // 儲存塗色前的狀態
+                colorCell(event.target, currentColor);
+            }
+        });
+
+        coloringCanvas.addEventListener('mouseup', (event) => {
+            isDrawing = false;
+            const endCell = event.target.classList.contains('grid-cell') ? getCellIndices(event.target) : null;
+
+            if (startCell && endCell) {
+                if (currentTool === 'line') {
+                    drawLine(startCell, endCell, currentColor);
+                } else if (currentTool === 'rect') {
+                    drawRectangle(startCell, endCell, currentColor);
+                } else if (currentTool === 'circle') {
+                    // 圓形工具的mouseup事件：計算半徑並繪製圓形
+                    const radius = Math.max(Math.abs(endCell.row - startCell.row), Math.abs(endCell.col - startCell.col));
+                    drawCircle(startCell, radius, currentColor);
+                }
+                startCell = null;
+            }
+        });
+
+        coloringCanvas.addEventListener('mousemove', (event) => {
+            if (isDrawing && event.target.classList.contains('grid-cell')) {
+                if (currentTool === 'erase') {
+                    const cellsToErase = getCellsToErase(event.target, eraserSize);
+                    cellsToErase.forEach(cell => colorCell(cell, eraseColor));
+                } else if (currentTool === 'paint') {
+                    colorCell(event.target, currentColor);
+                }
+            }
+        });
+
+        coloringCanvas.addEventListener('touchstart', (event) => {
+            isDrawing = true;
+            const touch = event.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            startCell = target && target.classList.contains('grid-cell') ? getCellIndices(target) : null;
+
+            if (currentTool === 'erase' && startCell) {
+                const cellsToErase = getCellsToErase(target, eraserSize);
+                const affectedCells = [];
+                cellsToErase.forEach(cell => {
+                    affectedCells.push({ cell: cell, originalColor: cell.style.backgroundColor });
+                    colorCell(cell, eraseColor);
+                });
+                saveState(); // 儲存橡皮擦操作後的狀態
+            } else if (currentTool === 'paint' && startCell) {
+                saveState(); // 儲存塗色前的狀態
+                colorCell(target, currentColor);
+                lastTouchedCell = target;
+            }
+            event.preventDefault();
+        }, { passive: false });
+
+        coloringCanvas.addEventListener('touchmove', (event) => {
+            if (isDrawing) {
+                const touch = event.touches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                const currentCell = target && target.classList.contains('grid-cell') ? getCellIndices(target) : null;
+
+                if (currentCell && currentCell !== lastTouchedCell) {
+                    if (currentTool === 'erase') {
+                        const cellsToErase = getCellsToErase(target, eraserSize);
+                        cellsToErase.forEach(cell => colorCell(cell, eraseColor));
+                    } else if (currentTool === 'paint') {
+                        colorCell(target, currentColor);
+                    }
+                    lastTouchedCell = target;
+                }
+            }
+            event.preventDefault();
+        }, { passive: false });
+
+        coloringCanvas.addEventListener('touchend', (event) => {
+            isDrawing = false;
+            const endTouch = event.changedTouches[0];
+            const endTarget = document.elementFromPoint(endTouch.clientX, endTouch.clientY);
+            const endCell = endTarget && endTarget.classList.contains('grid-cell') ? getCellIndices(endTarget) : null;
+
+            if (startCell && endCell) {
+                if (currentTool === 'line') {
+                    drawLine(startCell, endCell, currentColor);
+                } else if (currentTool === 'rect') {
+                    drawRectangle(startCell, endCell, currentColor);
+                } else if (currentTool === 'circle') {
+                    // 圓形工具的touchend事件：計算半徑並繪製圓形
+                    const radius = Math.max(Math.abs(endCell.row - startCell.row), Math.abs(endCell.col - startCell.col));
+                    drawCircle(startCell, radius, currentColor);
+                }
+                startCell = null;
+            }
+            lastTouchedCell = null;
+        });
+
+        coloringCanvas.addEventListener('touchcancel', () => {
+            isDrawing = false;
+            startCell = null;
+            lastTouchedCell = null;
+        });
+
+        // 創建 100x100 的網格
+        function createGrid() {
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell');
+                    coloringCanvas.appendChild(cell);
+                }
+            }
+            loadCanvas();
+            saveState(); // 儲存初始狀態
+        }
+
+        // 儲存畫布狀態
+        function saveCanvas() {
+            const cellColors = [];
+            const cells = coloringCanvas.children;
+            for (let i = 0; i < cells.length; i++) {
+                cellColors.push(cells[i].style.backgroundColor);
+            }
+            localStorage.setItem('coloringCanvasState', JSON.stringify(cellColors));
+            alert('畫布已儲存！');
+        }
+
+        // 載入畫布狀態
+        function loadCanvas() {
+            const savedState = localStorage.getItem('coloringCanvasState');
+            if (savedState) {
+                const cellColors = JSON.parse(savedState);
+                const cells = coloringCanvas.children;
+                if (cellColors.length === cells.length) {
+                    for (let i = 0; i < cells.length; i++) {
+                        cells[i].style.backgroundColor = cellColors[i];
+                    }
+                    alert('畫布已載入！');
+                    history = [cellColors]; // 載入後清除現有歷史記錄
+                } else {
+                    alert('儲存的資料與目前的畫布尺寸不符。');
+                }
+            } else {
+                console.log('沒有找到儲存的畫布狀態。');
+                history = []; // 沒有載入任何內容，清空歷史記錄
+            }
+        }
+
+        // 監聽儲存按鈕的點擊
+        saveButton.addEventListener('click', saveCanvas);
+
+        // 監聽載入按鈕的點擊
+        loadButton.addEventListener('click', loadCanvas);
+
+        // 創建初始網格並嘗試載入
+        createGrid();
+    </script>
+</body>
+</html>
+
