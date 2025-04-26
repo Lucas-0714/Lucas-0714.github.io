@@ -11,10 +11,6 @@
             flex-direction: column;
             align-items: center;
             background-image: url('https://i.imgur.com/9DXLRfW.jpeg'); /* 素色背景 */
-            transition: transform 0.5s ease-in-out; /* 添加過渡效果 */
-        }
-        .rotated {
-            transform: rotate(180deg);
         }
         .container {
             display: grid;
@@ -73,7 +69,6 @@
         const resultDisplay = document.getElementById('result');
         const restartButton = document.getElementById('restart-button');
         const playerTurnDisplay = document.getElementById('player-turn');
-        const body = document.body;
 
         let currentPlayer = 'X';
         let board = ['', '', '', '', '', '', '', '', ''];
@@ -133,7 +128,6 @@
         function switchPlayer() {
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
             playerTurnDisplay.textContent = `輪到玩家 ${currentPlayer}`;
-            body.classList.toggle('rotated'); // 切換 body 的 rotated class
         }
 
         function startGame() {
@@ -142,7 +136,6 @@
             currentPlayer = 'X';
             resultDisplay.textContent = '';
             playerTurnDisplay.textContent = '輪到玩家 X';
-            body.classList.remove('rotated'); // 確保遊戲開始時沒有旋轉
             cells.forEach(cell => {
                 cell.textContent = '';
                 cell.classList.remove('playerX', 'playerO');
