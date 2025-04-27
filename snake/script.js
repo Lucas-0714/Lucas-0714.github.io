@@ -29,6 +29,7 @@ function getRandomInt(min, max) {
 function createApple() {
     apple.x = getRandomInt(0, canvas.width / grid) * grid;
     apple.y = getRandomInt(0, canvas.height / grid) * grid;
+    console.log('蘋果生成在:', apple.x, apple.y);
 }
 
 function gameLoop() {
@@ -41,6 +42,7 @@ function gameLoop() {
     drawApple();
     updateSnake();
     drawSnake();
+    // console.log('gameLoop 運行中');
 }
 
 function drawApple() {
@@ -56,13 +58,16 @@ function drawSnake() {
             ctx.fillStyle = 'green';
             ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
         }
+        // console.log('繪製蛇的 cell:', cell.x, cell.y);
     });
 }
 
 function updateSnake() {
     snake.x += snake.dx;
     snake.y += snake.dy;
+    // console.log('蛇的位置:', snake.x, snake.y);
 
+    // 邊界處理 (穿牆)
     if (snake.x < 0) {
         snake.x = canvas.width - grid;
     } else if (snake.x >= canvas.width) {
@@ -87,12 +92,14 @@ function updateSnake() {
         createApple();
     }
 
+    // 碰撞檢測 (吃到自己)
     for (let i = 0; i < snake.cells.length - 1; i++) {
         if (snake.x === snake.cells[i].x && snake.y === snake.cells[i].y) {
             gameOver();
             break;
         }
     }
+    // console.log('updateSnake 呼叫');
 }
 
 function gameOver() {
@@ -110,36 +117,52 @@ function gameOver() {
 
 // 按鈕事件監聽器
 upBtn.addEventListener('click', () => {
-    if (snake.dy === 0) {
+    if (snake.dy === 0 && snake.dx !== 0) { // 防止水平移動時向上
         snake.dy = -grid;
         snake.dx = 0;
+        console.log('向上移動');
+    } else if (snake.cells.length <= 1) { // 初始或長度為 1 時允許移動
+        snake.dy = -grid;
+        snake.dx = 0;
+        console.log('向上移動 (初始)');
     }
 });
 
 downBtn.addEventListener('click', () => {
-    if (snake.dy === 0) {
+    if (snake.dy === 0 && snake.dx !== 0) { // 防止水平移動時向下
         snake.dy = grid;
         snake.dx = 0;
+        console.log('向下移動');
+    } else if (snake.cells.length <= 1) { // 初始或長度為 1 時允許移動
+        snake.dy = grid;
+        snake.dx = 0;
+        console.log('向下移動 (初始)');
     }
 });
 
 leftBtn.addEventListener('click', () => {
-    if (snake.dx === 0) {
+    if (snake.dx === 0 && snake.dy !== 0) { // 防止垂直移動時向左
         snake.dx = -grid;
         snake.dy = 0;
+        console.log('向左移動');
+    } else if (snake.cells.length <= 1) { // 初始或長度為 1 時允許移動
+        snake.dx = -grid;
+        snake.dy = 0;
+        console.log('向左移動 (初始)');
     }
 });
 
 rightBtn.addEventListener('click', () => {
-    if (snake.dx === 0) {
+    if (snake.dx === 0 && snake.dy !== 0) { // 防止垂直移動時向右
         snake.dx = grid;
         snake.dy = 0;
+        console.log('向右移動');
+    } else if (snake.cells.length <= 1) { // 初始或長度為 1 時允許移動
+        snake.dx = grid;
+        snake.dy = 0;
+        console.log('向右移動 (初始)');
     }
 });
 
 createApple();
 requestAnimationFrame(gameLoop);
-
-// 如果你只想用按鈕控制，可以移除觸控事件監聽器
-// canvas.removeEventListener('touchstart', handleTouchStart);
-// canvas.removeEventListener('touchmove', handleTouchMove);
