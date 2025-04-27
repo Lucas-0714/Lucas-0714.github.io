@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 
-const grid = 20; // 每個格子的尺寸
+const grid = 20;
 let count = 0;
 let snake = {
     x: 160,
@@ -17,6 +17,8 @@ let apple = {
     y: 320
 };
 let score = 0;
+let touchStartX = null;
+let touchStartY = null;
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -29,7 +31,7 @@ function createApple() {
 
 function gameLoop() {
     requestAnimationFrame(gameLoop);
-    if (++count < 10) { // 控制遊戲速度
+    if (++count < 10) {
         return;
     }
     count = 0;
@@ -49,7 +51,7 @@ function drawSnake() {
     snake.cells.forEach(function(cell, index) {
         ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
         if (index === snake.cells.length - 1) {
-            ctx.fillStyle = 'green'; // 蛇頭顏色
+            ctx.fillStyle = 'green';
             ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
         }
     });
@@ -59,7 +61,6 @@ function updateSnake() {
     snake.x += snake.dx;
     snake.y += snake.dy;
 
-    // 邊界處理 (穿牆)
     if (snake.x < 0) {
         snake.x = canvas.width - grid;
     } else if (snake.x >= canvas.width) {
@@ -77,7 +78,6 @@ function updateSnake() {
         snake.cells.shift();
     }
 
-    // 吃蘋果
     if (snake.x === apple.x && snake.y === apple.y) {
         snake.maxCells++;
         score++;
@@ -85,7 +85,6 @@ function updateSnake() {
         createApple();
     }
 
-    // 碰撞檢測 (吃到自己)
     for (let i = 0; i < snake.cells.length - 1; i++) {
         if (snake.x === snake.cells[i].x && snake.y === snake.cells[i].y) {
             gameOver();
@@ -107,26 +106,49 @@ function gameOver() {
     createApple();
 }
 
-document.addEventListener('keydown', function(e) {
-    // 防止預設箭頭鍵滾動頁面
-    if (e.key.startsWith('Arrow')) {
-        e.preventDefault();
+function handleTouchStart(event) {
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+}
+
+function handleTouchMove(event) {
+    if (!touchStartX || !touchStartY) {
+        return;
     }
 
-    if (e.key === 'ArrowLeft' && snake.dx === 0) {
-        snake.dx = -grid;
-        snake.dy = 0;
-    } else if (e.key === 'ArrowUp' && snake.dy === 0) {
-        snake.dy = -grid;
-        snake.dx = 0;
-    } else if (e.key === 'ArrowRight' && snake.dx === 0) {
-        snake.dx = grid;
-        snake.dy = 0;
-    } else if (e.key === 'ArrowDown' && snake.dy === 0) {
-        snake.dy = grid;
-        snake.dx = 0;
+    const touchEndX = event.touches[0].clientX;
+    const touchEndY = event.touches[0].clientY;
+
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // 判斷滑動方向 (水平或垂直)
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // 水平滑動
+        if (deltaX > 0 && snake.dx === 0) {
+            snake.dx = grid;
+            snake.dy = 0;
+        } else if (deltaX < 0 && snake.dx === 0) {
+            snake.dx = -grid;
+            snake.dy = 0;
+        }
+    } else {
+        // 垂直滑動
+        if (deltaY > 0 && snake.dy === 0) {
+            snake.dy = grid;
+            snake.dx = 0;
+        } else if (deltaY < 0 && snake.dy === 0) {
+            snake.dy = -grid;
+            snake.dx = 0;
+        }
     }
-});
+
+    touchStartX = null;
+    touchStartY = null;
+}
+
+canvas.addEventListener('touchstart', handleTouchStart);
+canvas.addEventListener('touchmove', handleTouchMove);
 
 createApple();
 requestAnimationFrame(gameLoop);
