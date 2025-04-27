@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>行動裝置版互動式 3D 立方體 (不嵌入 gl-matrix)</title>
+<title>行動裝置版互動式 3D 彩色立方體</title>
 <style>
   body { margin: 0; overflow: hidden; background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
   canvas { display: block; border: 1px solid #333; }
@@ -148,6 +148,7 @@
     // 創建模型視圖和投影矩陣
     const modelViewMatrix = mat4.create();
     const projectionMatrix = mat4.create();
+    // 調整 z 值，將立方體向後移動，確保在視野範圍內
     mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 100.0);
     mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -5.0]);
 
@@ -177,24 +178,29 @@
 
     // 渲染循環
     function render() {
+      // 清除畫布和深度緩衝區
       renderer.clearColor(0.0, 0.0, 0.0, 1.0);
       renderer.clearDepth(1.0);
       renderer.enable(renderer.DEPTH_TEST);
       renderer.depthFunc(renderer.LEQUAL);
-
       renderer.clear(renderer.COLOR_BUFFER_BIT | renderer.DEPTH_BUFFER_BIT);
 
+      // 創建一個新的模型視圖矩陣並應用旋轉
       const rotatedModelViewMatrix = mat4.clone(modelViewMatrix);
       mat4.rotateY(rotatedModelViewMatrix, rotatedModelViewMatrix, rotationAngle);
 
+      // 將模型視圖和投影矩陣傳遞給著色器
       renderer.uniformMatrix4fv(modelViewMatrixUniform, false, rotatedModelViewMatrix);
       renderer.uniformMatrix4fv(projectionMatrixUniform, false, projectionMatrix);
 
+      // 繪製立方體
       renderer.drawArrays(renderer.TRIANGLES, 0, vertices.length / 3);
 
+      // 請求下一個動畫幀
       requestAnimationFrame(render);
     }
 
+    // 開始渲染循環
     render();
   }
 </script>
