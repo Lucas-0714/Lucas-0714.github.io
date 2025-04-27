@@ -17,12 +17,12 @@
             usernameDisplay.textContent = username;
         } else {
             // 如果沒有登入資訊，導回登入頁面
-            window.location.href = '';
+            window.location.href = 'login.html';
         }
 
         function logout() {
             localStorage.removeItem('username');
-            window.location.href = '';
+            window.location.href = 'login.html';
         }
     </script>
 </body>
