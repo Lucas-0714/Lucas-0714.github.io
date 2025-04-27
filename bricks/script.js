@@ -11,8 +11,6 @@ let ballDY = -2;
 let paddleHeight = 10;
 let paddleWidth = 75;
 let paddleX = (canvas.width - paddleWidth) / 2;
-let rightPressed = false; // 不再需要鍵盤按鈕狀態
-let leftPressed = false;  // 不再需要鍵盤按鈕狀態
 const brickRowCount = 3;
 const brickColumnCount = 5;
 const brickWidth = 75;
@@ -21,7 +19,6 @@ const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 let bricks = [];
-let touchStartX = null; // 記錄觸摸開始的 X 座標
 
 for (let c = 0; c < brickColumnCount; c++) {
     bricks[c] = [];
@@ -114,35 +111,18 @@ function draw() {
         }
     }
 
-    // 擋板移動 - 根據觸控滑動
-    if (touchStartX !== null) {
-        paddleX = Math.max(0, Math.min(canvas.width - paddleWidth, touchStartX - paddleWidth / 2));
-    }
-
     ballX += ballDX;
     ballY += ballDY;
     requestAnimationFrame(draw);
 }
 
-// 觸摸開始事件
-canvas.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-});
-
-// 觸摸移動事件
-canvas.addEventListener('touchmove', (e) => {
-    if (touchStartX !== null) {
-        touchStartX = e.touches[0].clientX;
+function mouseMoveHandler(e) {
+    const relativeX = e.clientX - canvas.offsetLeft;
+    if (relativeX > 0 && relativeX < canvas.width) {
+        paddleX = relativeX - paddleWidth / 2;
     }
-});
+}
 
-// 觸摸結束事件
-canvas.addEventListener('touchend', () => {
-    touchStartX = null;
-});
-
-// 移除鍵盤事件監聽器
-// document.removeEventListener("keydown", keyDownHandler);
-// document.removeEventListener("keyup", keyUpHandler);
+document.addEventListener("mousemove", mouseMoveHandler);
 
 draw();
