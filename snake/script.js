@@ -1,6 +1,10 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
+const upBtn = document.getElementById('upBtn');
+const downBtn = document.getElementById('downBtn');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
 
 const grid = 20;
 let count = 0;
@@ -17,8 +21,6 @@ let apple = {
     y: 320
 };
 let score = 0;
-let touchStartX = null;
-let touchStartY = null;
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -106,49 +108,38 @@ function gameOver() {
     createApple();
 }
 
-function handleTouchStart(event) {
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-}
-
-function handleTouchMove(event) {
-    if (!touchStartX || !touchStartY) {
-        return;
+// 按鈕事件監聽器
+upBtn.addEventListener('click', () => {
+    if (snake.dy === 0) {
+        snake.dy = -grid;
+        snake.dx = 0;
     }
+});
 
-    const touchEndX = event.touches[0].clientX;
-    const touchEndY = event.touches[0].clientY;
-
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-
-    // 判斷滑動方向 (水平或垂直)
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // 水平滑動
-        if (deltaX > 0 && snake.dx === 0) {
-            snake.dx = grid;
-            snake.dy = 0;
-        } else if (deltaX < 0 && snake.dx === 0) {
-            snake.dx = -grid;
-            snake.dy = 0;
-        }
-    } else {
-        // 垂直滑動
-        if (deltaY > 0 && snake.dy === 0) {
-            snake.dy = grid;
-            snake.dx = 0;
-        } else if (deltaY < 0 && snake.dy === 0) {
-            snake.dy = -grid;
-            snake.dx = 0;
-        }
+downBtn.addEventListener('click', () => {
+    if (snake.dy === 0) {
+        snake.dy = grid;
+        snake.dx = 0;
     }
+});
 
-    touchStartX = null;
-    touchStartY = null;
-}
+leftBtn.addEventListener('click', () => {
+    if (snake.dx === 0) {
+        snake.dx = -grid;
+        snake.dy = 0;
+    }
+});
 
-canvas.addEventListener('touchstart', handleTouchStart);
-canvas.addEventListener('touchmove', handleTouchMove);
+rightBtn.addEventListener('click', () => {
+    if (snake.dx === 0) {
+        snake.dx = grid;
+        snake.dy = 0;
+    }
+});
 
 createApple();
 requestAnimationFrame(gameLoop);
+
+// 如果你只想用按鈕控制，可以移除觸控事件監聽器
+// canvas.removeEventListener('touchstart', handleTouchStart);
+// canvas.removeEventListener('touchmove', handleTouchMove);
