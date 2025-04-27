@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 / 建立帳號</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column; /* 使登入和註冊容器垂直排列 */
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px; /* 為兩個容器之間增加間距 */
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            text-align: left;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 12px);
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error-message, .success-message {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .error-message {
+            color: red;
+        }
+        .success-message {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>登入</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginUsername">使用者名稱:</label>
+                <input type="text" id="loginUsername" name="loginUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">密碼:</label>
+                <input type="password" id="loginPassword" name="loginPassword" required>
+            </div>
+            <button type="submit">登入</button>
+            <div id="loginErrorMessage" class="error-message" style="display:none;">登入失敗，請檢查您的使用者名稱和密碼。</div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>建立帳號</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="registerUsername">使用者名稱:</label>
+                <input type="text" id="registerUsername" name="registerUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">密碼:</label>
+                <input type="password" id="registerPassword" name="registerPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">確認密碼:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit">建立帳號</button>
+            <div id="registerErrorMessage" class="error-message" style="display:none;"></div>
+            <div id="registerSuccessMessage" class="success-message" style="display:none;">帳號建立成功！</div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginErrorMessageDiv = document.getElementById('loginErrorMessage');
+            const registerErrorMessageDiv = document.getElementById('registerErrorMessage');
+            const registerSuccessMessageDiv = document.getElementById('registerSuccessMessage');
+
+            // 登入表單提交事件
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const usernameInput = document.getElementById('loginUsername');
+                const passwordInput = document.getElementById('loginPassword');
+                const username = usernameInput.value;
+                const password = passwordInput.value;
+
+                const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
+
+                if (storedUsers[username] === password) {
+                    localStorage.setItem('username', username);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    loginErrorMessageDiv.style.display = 'block';
+                    loginErrorMessageDiv.textContent = '登入失敗，請檢查您的使用者名稱和密碼。';
+                }
+            });
+
+            // 建立帳號表單提交事件
+            registerForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const usernameInput = document.getElementById('registerUsername');
+                const passwordInput = document.getElementById('registerPassword');
+                const confirmPasswordInput = document.getElementById('confirmPassword');
+                const username = usernameInput.value;
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (password !== confirmPassword) {
+                    registerErrorMessageDiv.style.display = 'block';
+                    registerErrorMessageDiv.textContent = '密碼與確認密碼不符。';
+                    registerSuccessMessageDiv.style.display = 'none';
+                    return;
+                }
+
+                const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
+
+                if (storedUsers[username]) {
+                    registerErrorMessageDiv.style.display = 'block';
+                    registerErrorMessageDiv.textContent = '該使用者名稱已被使用。';
+                    registerSuccessMessageDiv.style.display = 'none';
+                    return;
+                }
+
+                storedUsers[username] = password;
+                localStorage.setItem('users', JSON.stringify(storedUsers));
+
+                registerSuccessMessageDiv.style.display = 'block';
+                registerSuccessMessageDiv.textContent = '帳號建立成功！';
+                registerErrorMessageDiv.style.display = 'none';
+
+                // 清空註冊表單
+                registerForm.reset();
+            });
+        });
+    </script>
+</body>
+</html>
