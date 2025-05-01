@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>簡單平台遊戲</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>簡單平台遊戲 (行動版)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
-        <canvas id="gameCanvas" width="640" height="480"></canvas>
+        <canvas id="gameCanvas"></canvas>
+        <div class="controls">
+            <button id="leftBtn">←</button>
+            <button id="jumpBtn">↑</button>
+            <button id="rightBtn">→</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
