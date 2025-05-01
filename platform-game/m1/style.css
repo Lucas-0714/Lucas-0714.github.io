@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.game-container {
+    border: 1px solid #ccc;
+}
+
+#gameCanvas {
+    background-color: #87ceeb; /* 天空藍 */
+}
