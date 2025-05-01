@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    padding: 0;
     overflow: hidden;
     background-color: #f0f0f0;
     display: flex;
@@ -10,8 +11,29 @@ body {
 
 .game-container {
     border: 1px solid #ccc;
+    position: relative; /* 讓控制按鈕可以相對於遊戲容器定位 */
 }
 
 #gameCanvas {
     background-color: #87ceeb; /* 天空藍 */
+    display: block; /* 移除 canvas 下方的額外空間 */
+}
+
+.controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+}
+
+.controls button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
 }
