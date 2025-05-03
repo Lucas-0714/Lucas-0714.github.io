@@ -75,7 +75,7 @@ h1 {
 
 #controls {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
 }
 
@@ -98,17 +98,14 @@ h1 {
     background-color: #ddd;
 }
 
-#controls button#upBtn,
-#controls button#downBtn {
-    width: 50px;
-}
-
-#controls > div {
+#controls .flex {
     display: flex;
-    flex-direction: column;
-    margin: 0 10px;
 }
 
-#controls > div button {
-    width: 50px;
+#controls .flex button {
+    width: 50px; /* 調整按鈕寬度 */
+}
+
+#controls .flex button:nth-child(2) {
+    visibility: hidden; /* 隱藏中間的按鈕 */
 }
