@@ -143,11 +143,18 @@ function checkWin() {
   const allBoxesOnTargets = findAllChar('$').length === 0;
   if (allBoxesOnTargets) {
     messageElement.textContent = '恭喜過關！';
-    // 可以載入下一關或顯示結束畫面
+    currentLevel++; // 增加關卡索引
+    if (currentLevel < levels.length) {
+      setTimeout(loadLevel, 1500); // 延遲 1.5 秒後載入下一關
+    } else {
+      messageElement.textContent = '所有關卡已完成！';
+      // 可以顯示重新開始按鈕等
+    }
   } else {
     messageElement.textContent = '';
   }
 }
+
 
 // 事件監聽
 upBtn.addEventListener('click', () => movePlayer(0, -1));
