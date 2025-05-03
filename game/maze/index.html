@@ -7,14 +7,22 @@
 </head>
 <body>
     <h1>迷宮遊戲</h1>
-    <div id="maze-container">
+    <div id="map-selector">
+        <label for="map-select">選擇地圖：</label>
+        <select id="map-select">
+            <option value="map1">簡單地圖</option>
+            <option value="map2">中等地圖</option>
+            <option value="map3">困難地圖</option>
+            </select>
+        <button id="start-button">開始遊戲</button>
+    </div>
+    <div id="maze-container" style="display:none;">
         </div>
     <div id="message"></div>
-    <div id="controls">
+    <div id="controls" style="display:none;">
         <button id="upBtn">↑</button>
         <div>
             <button id="leftBtn">←</button>
-            <button >　</button>
             <button id="rightBtn">→</button>
         </div>
         <button id="downBtn">↓</button>
