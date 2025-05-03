@@ -1,76 +1,63 @@
+const mapSelect = document.getElementById('map-select');
+const startButton = document.getElementById('start-button');
 const mazeContainer = document.getElementById('maze-container');
 const messageElement = document.getElementById('message');
+const controlsElement = document.getElementById('controls');
 const upBtn = document.getElementById('upBtn');
 const downBtn = document.getElementById('downBtn');
 const leftBtn = document.getElementById('leftBtn');
 const rightBtn = document.getElementById('rightBtn');
 
-// 可以根據螢幕尺寸動態調整迷宮大小
-const gridSize = Math.min(15, Math.floor(Math.min(window.innerWidth, window.innerHeight) / 30));
-
-// 動態生成迷宮地圖 (可以根據 gridSize 調整複雜度)
-function generateMazeMap(size) {
-    const map = Array(size).fill(null).map(() => Array(size).fill(0));
-    let startRow = 1, startCol = 1;
-    let endRow = size - 2, endCol = size - 2;
-    map[startRow][startCol] = 'S';
-    map[endRow][endCol] = 'E';
-    for (let i = 0; i < size; i++) {
-        map[0][i] = 0;
-        map[size - 1][i] = 0;
-        map[i][0] = 0;
-        map[i][size - 1] = 0;
-    }
-    for (let i = 1; i < size - 1; i++) {
-        map[1][i] = 1;
-        map[size - 2][i] = 1;
-        map[i][1] = 1;
-        map[i][size - 2] = 1;
-    }
-    map[1][1] = 'S';
-    map[size - 2][size - 2] = 'E';
-    // 創建一個簡單的路徑
-    map[1][2] = 1;
-    map[1][3] = 1;
-    map[2][3] = 1;
-    map[3][3] = 1;
-    map[3][2] = 1;
-    map[3][1] = 1;
-    map[4][1] = 1;
-    map[4][2] = 1;
-    map[4][3] = 1;
-    map[4][4] = 1;
-    map[5][4] = 1;
-    map[6][4] = 1;
-    map[6][3] = 1;
-    map[6][2] = 1;
-    map[7][2] = 1;
-    map[7][3] = 1;
-    map[7][4] = 1;
-    map[7][5] = 1;
-    map[7][6] = 1;
-    map[6][6] = 1;
-    map[5][6] = 1;
-    map[4][6] = 1;
-    map[3][6] = 1;
-    map[2][6] = 1;
-    map[2][7] = 1;
-    map[2][8] = 1;
-    map[3][8] = 1;
-    map[4][8] = 1;
-    map[5][8] = 1;
-    map[6][8] = 1;
-    map[7][8] = 1;
-    map[8][8] = 'E';
-
-    return map;
-}
-
-const mazeMap = generateMazeMap(gridSize);
+let mazeMap = [];
+let gridSize = 0;
 let playerRow, playerCol;
 
-function generateMaze() {
+// 定義不同的迷宮地圖
+const maps = {
+    map1: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 'S', 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+        [0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
+        [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+        [0, 1, 0, 1, 1, 1, 1, 1, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 'E', 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ],
+    map2: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 'S', 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+        [0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+        [0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 'E', 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ],
+    map3: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 'S', 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+        [0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+        [0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0],
+        [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0],
+        [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0],
+        [0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+        [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 'E', 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
+};
+
+function generateMaze(selectedMap) {
     mazeContainer.innerHTML = '';
+    mazeMap = maps[selectedMap];
+    gridSize = mazeMap.length;
     mazeContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     mazeContainer.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
@@ -151,8 +138,13 @@ downBtn.addEventListener('click', () => movePlayer('down'));
 leftBtn.addEventListener('click', () => movePlayer('left'));
 rightBtn.addEventListener('click', () => movePlayer('right'));
 
-// 遊戲初始化
-generateMaze();
+// 開始遊戲的事件監聽器
+startButton.addEventListener('click', () => {
+    const selectedMap = mapSelect.value;
+    generateMaze(selectedMap);
+    document.getElementById('map-selector').style.display = 'none';
+    mazeContainer.style.display = 'grid';
+    controlsElement.style.display = 'flex';
+});
 
-// 可以根據螢幕尺寸重新生成迷宮 (可選)
-window.addEventListener('resize', generateMaze);
+// 初始時不生成迷宮
