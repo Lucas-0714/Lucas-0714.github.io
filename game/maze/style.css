@@ -16,7 +16,7 @@ h1 {
     border: 1px solid black;
     margin: 10px auto;
     width: 90vw;
-    height: 90vw;
+    /* height: 90vw; */ /* 移除固定高度，讓 JavaScript 動態設定 */
 }
 
 .cell {
