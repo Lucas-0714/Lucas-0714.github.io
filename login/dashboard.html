@@ -13,10 +13,17 @@
 <body>
     <h1>歡迎，<span id="usernameDisplay"></span>！</h1>
     <button onclick="logout()">登出</button>
+    <br>
+    <counts>
+        <tl>統計</tl>
+        <click>您在點擊計數器點擊了<span id="clickCounterDisplay"></span>次</click>
+    </counts>
 
     <script>
         const username = localStorage.getItem('username');
         const usernameDisplay = document.getElementById('usernameDisplay');
+        const clickCounter = localStorage.getItem('clickCounter');
+        const clickCounterDisplay = document.getElementByld('clickCounterDisplay');
 
         if (username) {
             usernameDisplay.textContent = username;
