@@ -1,25 +1,39 @@
 const mazeContainer = document.getElementById('maze-container');
 const messageElement = document.getElementById('message');
+const upBtn = document.getElementById('upBtn');
+const downBtn = document.getElementById('downBtn');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
 
-// 定義迷宮地圖 (0: 牆壁, 1: 路徑, S: 起點, E: 終點)
-const mazeMap = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 'S', 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 0, 1, 1, 0],
-    [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 1, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 'E', 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-];
+// 可以根據螢幕尺寸動態調整迷宮大小
+const gridSize = Math.min(15, Math.floor(Math.min(window.innerWidth, window.innerHeight) / 30));
 
+// 動態生成迷宮地圖 (可以根據 gridSize 調整複雜度)
+function generateMazeMap(size) {
+    const map = Array(size).fill(null).map(() => Array(size).fill(0));
+    // 這裡可以加入更複雜的迷宮生成演算法
+    // 為了簡化，我們先創建一個簡單的固定起點和終點的路徑
+    let startRow = 1, startCol = 1;
+    let endRow = size - 2, endCol = size - 2;
+    map[startRow][startCol] = 'S';
+    map[endRow][endCol] = 'E';
+    for (let i = 1; i < size - 1; i++) {
+        map[1][i] = 1;
+        map[size - 2][i] = 1;
+        map[i][1] = 1;
+        map[i][size - 2] = 1;
+    }
+    map[1][1] = 'S';
+    map[size - 2][size - 2] = 'E';
+    return map;
+}
+
+const mazeMap = generateMazeMap(gridSize);
 let playerRow, playerCol;
-const gridSize = mazeMap.length;
 
 // 根據迷宮地圖生成 HTML
 function generateMaze() {
+    mazeContainer.innerHTML = ''; // 清空之前的迷宮
     mazeContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     mazeContainer.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
@@ -51,7 +65,6 @@ function generateMaze() {
     });
 }
 
-// 處理玩家移動
 function movePlayer(direction) {
     let newRow = playerRow;
     let newCol = playerCol;
@@ -78,44 +91,31 @@ function movePlayer(direction) {
         newCol < gridSize &&
         mazeMap[newRow][newCol] !== 0
     ) {
-        // 移除玩家之前的樣式
         const oldPlayerCell = mazeContainer.children[playerRow * gridSize + playerCol];
         oldPlayerCell.classList.remove('player');
 
         playerRow = newRow;
         playerCol = newCol;
 
-        // 更新玩家的新位置
         const newPlayerCell = mazeContainer.children[playerRow * gridSize + playerCol];
         newPlayerCell.classList.add('player');
 
-        // 檢查是否到達終點
         if (mazeMap[playerRow][playerCol] === 'E') {
             messageElement.textContent = '恭喜你到達終點！';
-            // 可以添加更多遊戲結束邏輯
         } else {
-            messageElement.textContent = ''; // 清空訊息
+            messageElement.textContent = '';
         }
     }
 }
 
-// 監聽鍵盤事件
-document.addEventListener('keydown', (event) => {
-    switch (event.key) {
-        case 'ArrowUp':
-            movePlayer('up');
-            break;
-        case 'ArrowDown':
-            movePlayer('down');
-            break;
-        case 'ArrowLeft':
-            movePlayer('left');
-            break;
-        case 'ArrowRight':
-            movePlayer('right');
-            break;
-    }
-});
+// 添加觸控事件監聽器
+upBtn.addEventListener('click', () => movePlayer('up'));
+downBtn.addEventListener('click', () => movePlayer('down'));
+leftBtn.addEventListener('click', () => movePlayer('left'));
+rightBtn.addEventListener('click', () => movePlayer('right'));
 
 // 遊戲初始化
 generateMaze();
+
+// 可以根據螢幕尺寸重新生成迷宮 (可選)
+window.addEventListener('resize', generateMaze);
