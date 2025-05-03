@@ -1,0 +1,38 @@
+#maze-container {
+    display: grid; /* 使用 CSS Grid 佈局迷宮 */
+    border: 1px solid black;
+    margin: 20px auto;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+}
+
+.wall {
+    background-color: #333;
+}
+
+.path {
+    background-color: #eee;
+}
+
+.start {
+    background-color: green;
+    color: white;
+}
+
+.end {
+    background-color: red;
+    color: white;
+}
+
+.player {
+    background-color: blue;
+    color: white;
+    border-radius: 50%; /* 讓玩家看起來像個圓形 */
+}
