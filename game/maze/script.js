@@ -148,3 +148,45 @@ startButton.addEventListener('click', () => {
 });
 
 // 初始時不生成迷宮
+function generateMaze(selectedMap) {
+    console.log('generateMaze 函數被調用，選中的地圖是：', selectedMap);
+    mazeContainer.innerHTML = '';
+    mazeMap = maps[selectedMap];
+    console.log('載入的地圖資料：', mazeMap);
+    if (!mazeMap) {
+        console.error('找不到選定的地圖！');
+        return;
+    }
+    gridSize = mazeMap.length;
+    console.log('迷宮尺寸：', gridSize);
+    mazeContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    mazeContainer.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+    mazeMap.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+            const cellElement = document.createElement('div');
+            cellElement.classList.add('cell');
+
+            switch (cell) {
+                case 0:
+                    cellElement.classList.add('wall');
+                    break;
+                case 1:
+                    cellElement.classList.add('path');
+                    break;
+                case 'S':
+                    cellElement.classList.add('start');
+                    cellElement.classList.add('player');
+                    playerRow = rowIndex;
+                    playerCol = colIndex;
+                    break;
+                case 'E':
+                    cellElement.classList.add('end');
+                    break;
+            }
+
+            mazeContainer.appendChild(cellElement);
+        });
+    });
+    console.log('迷宮生成完成');
+}
