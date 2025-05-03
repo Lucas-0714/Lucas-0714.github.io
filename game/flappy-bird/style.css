@@ -1,0 +1,33 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #71c5cf; /* 天空藍 */
+}
+
+#game-container {
+    overflow: hidden;
+    border: 5px solid #333;
+    background-color: #a2d9ff; /* 淺藍 */
+}
+
+#game-canvas {
+    display: block;
+}
+
+#score-board {
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+#start-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
