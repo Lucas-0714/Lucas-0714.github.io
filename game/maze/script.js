@@ -63,10 +63,14 @@ function generateMaze(selectedMap) {
         console.error('找不到選定的地圖！');
         return;
     }
-    gridSize = mazeMap.length;
-    console.log('迷宮尺寸：', gridSize);
-    mazeContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    mazeContainer.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+    const numRows = mazeMap.length;
+    const numCols = mazeMap[0].length; // 假設所有行的長度相同
+    gridSize = numRows; // 使用行數作為 gridSize
+
+    mazeContainer.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
+    mazeContainer.style.gridTemplateRows = `repeat(${numRows}, 1fr)`;
+    mazeContainer.style.width = '90vw';
+    mazeContainer.style.height = `${(90 * numRows / numCols)}vw`; // 根據行列比例調整高度
 
     mazeMap.forEach((row, rowIndex) => {
         row.forEach((cell, colIndex) => {
@@ -120,16 +124,16 @@ function movePlayer(direction) {
         newRow >= 0 &&
         newRow < gridSize &&
         newCol >= 0 &&
-        newCol < gridSize &&
+        newCol < mazeMap[0].length && // 使用實際列數進行邊界檢查
         mazeMap[newRow][newCol] !== 0
     ) {
-        const oldPlayerCell = mazeContainer.children[playerRow * gridSize + playerCol];
+        const oldPlayerCell = mazeContainer.children[playerRow * mazeMap[0].length + playerCol];
         oldPlayerCell.classList.remove('player');
 
         playerRow = newRow;
         playerCol = newCol;
 
-        const newPlayerCell = mazeContainer.children[playerRow * gridSize + playerCol];
+        const newPlayerCell = mazeContainer.children[playerRow * mazeMap[0].length + playerCol];
         newPlayerCell.classList.add('player');
 
         if (mazeMap[playerRow][playerCol] === 'E') {
