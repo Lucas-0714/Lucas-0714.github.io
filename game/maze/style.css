@@ -3,8 +3,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0; /* 移除預設 margin */
-    padding: 10px; /* 添加一些內邊距 */
+    margin: 0;
+    padding: 10px;
 }
 
 h1 {
@@ -15,8 +15,8 @@ h1 {
     display: grid;
     border: 1px solid black;
     margin: 10px auto;
-    width: 90vw; /* 使用 viewport width 讓迷宮寬度適應螢幕 */
-    height: 90vw; /* 保持寬高比，讓單元格看起來是方形的 */
+    width: 90vw;
+    height: 90vw;
 }
 
 .cell {
@@ -77,5 +77,5 @@ h1 {
 }
 
 #controls button:active {
-    background-color: #ccc; /* 按下時的視覺回饋 */
+    background-color: #ccc;
 }
