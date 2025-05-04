@@ -58,8 +58,8 @@ h1 {
 }
 
 .cell {
-    width: 40px;
-    height: 40px;
+    width: clac(95vw/15);
+    height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
