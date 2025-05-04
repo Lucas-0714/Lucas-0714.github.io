@@ -117,8 +117,7 @@ let levelCompleted = false;
 let load = false;
 
 function loadLevel() {
-    if (load === true) {
-    } else {
+    if (load === false) {
         levelCompleted = false;
         messageElement.textContent = ''; // 在載入新關卡時清除訊息
         if (currentLevel >= levels.length) {
@@ -130,7 +129,7 @@ function loadLevel() {
     }
     map = levels[currentLevel].map(row => row.split(''));
     targetsPos = findAllChar('.');
-    let load = false
+    let load = false;
     renderMap();
 }
 
@@ -330,8 +329,10 @@ function loadGame() {
         map = gameState.map;
         playerPos = gameState.playerPos;
         boxesPos = gameState.boxesPos;
-        startGame(); // 載入遊戲後直接開始
-        renderMap();
+        renderMap(); // 在載入數據後立即渲染地圖
+        startMenu.style.display = 'none';
+        gameWrapper.style.display = 'flex';
+        playBackgroundMusic();
         messageElement.textContent = '遊戲已載入！';
     } else {
         messageElement.textContent = '沒有儲存的遊戲！';
