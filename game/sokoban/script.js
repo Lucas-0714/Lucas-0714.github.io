@@ -175,7 +175,7 @@ function renderMap() {
 
     gameContainer.style.gridTemplateColumns = `repeat(${numCols}, ${cellSize}px)`;
     gameContainer.style.gridTemplateRows = `repeat(${numRows}, ${cellSize}px)`;
-    gameContainer.style.gap = '1px'; // 可以調整 cell 之間的間距
+    gameContainer.style.gap = '0px'; // 可以調整 cell 之間的間距
 
     for (let y = 0; y < numRows; y++) {
         for (let x = 0; x < numCols; x++) {
