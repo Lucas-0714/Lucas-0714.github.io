@@ -114,22 +114,17 @@ let playerPos;
 let boxesPos = [];
 let targetsPos = [];
 let levelCompleted = false;
-let load = false;
 
 function loadLevel() {
-    if (let load === false) {
-        levelCompleted = false;
-        messageElement.textContent = ''; // 在載入新關卡時清除訊息
-        if (currentLevel >= levels.length) {
-            messageElement.textContent = '所有關卡已完成！';
-            return;
-        }
-        playerPos = findChar('@');
-        boxesPos = findAllChar('$');
-    }
+    levelCompleted = false;
+    messageElement.textContent = ''; // 在載入新關卡時清除訊息
+    if (currentLevel >= levels.length) {
+        messageElement.textContent = '所有關卡已完成！';
+        return;
+    playerPos = findChar('@');
+    boxesPos = findAllChar('$');
     map = levels[currentLevel].map(row => row.split(''));
     targetsPos = findAllChar('.');
-    let load = false;
     renderMap();
 }
 
@@ -321,7 +316,6 @@ function saveGame() {
 }
 
 function loadGame() {
-    let load = true;
     const savedGame = localStorage.getItem('sokobanGame');
     if (savedGame) {
         const gameState = JSON.parse(savedGame);
@@ -329,6 +323,7 @@ function loadGame() {
         map = gameState.map;
         playerPos = gameState.playerPos;
         boxesPos = gameState.boxesPos;
+        targetsPos = findAllChar('.');
         renderMap(); // 在載入數據後立即渲染地圖
         startMenu.style.display = 'none';
         gameWrapper.style.display = 'flex';
