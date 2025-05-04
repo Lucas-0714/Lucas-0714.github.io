@@ -10,6 +10,10 @@ const restartBtn = document.getElementById('restartBtn');
 const winSound = document.getElementById('winSound');
 const deadlockSound = document.getElementById('deadlockSound');
 const bgSound = document.getElementById('bgSound');
+const startMenu = document.getElementById('start-menu');
+const gameWrapper = document.getElementById('game-wrapper');
+const startGameBtn = document.getElementById('startGameBtn');
+const loadGameBtnMenu = document.getElementById('loadBtn');
 
 let currentLevel = 0;
 const levels = [
@@ -109,10 +113,10 @@ let map;
 let playerPos;
 let boxesPos = [];
 let targetsPos = [];
-let levelCompleted = false; // 新增標誌，防止多次過關
+let levelCompleted = false;
 
 function loadLevel() {
-    levelCompleted = false; // 在載入新關卡時重置過關標誌
+    levelCompleted = false;
     if (currentLevel >= levels.length) {
         messageElement.textContent = '所有關卡已完成！';
         return;
@@ -277,18 +281,14 @@ function checkWin() {
     const boxesOnTargets = findAllChar('*').length;
     const totalTargets = targetsPos.length;
 
-    if (boxesOnTargets === totalTargets && !levelCompleted) { // 檢查是否過關且尚未標記為已完成
+    if (boxesOnTargets === totalTargets && !levelCompleted) {
         messageElement.textContent = '恭喜過關！';
         winSound.play();
-        levelCompleted = true; // 標記為已完成
+        levelCompleted = true;
         setTimeout(() => {
             currentLevel++;
             loadLevel();
         }, 1500);
-    } else if (boxesOnTargets === totalTargets && levelCompleted) {
-        // 防止在過關動畫期間再次觸發
-    } else {
-        messageElement.textContent = '';
     }
 }
 
@@ -314,6 +314,7 @@ function loadGame() {
         map = gameState.map;
         playerPos = gameState.playerPos;
         boxesPos = gameState.boxesPos;
+        startGame(); // 載入遊戲後直接開始
         renderMap();
         messageElement.textContent = '遊戲已載入！';
     } else {
@@ -325,7 +326,7 @@ function loadGame() {
 }
 
 function restartLevel() {
-    loadLevel(); // 重新載入當前關卡
+    loadLevel();
     messageElement.textContent = '關卡已重新開始！';
     setTimeout(() => {
         messageElement.textContent = '';
@@ -333,12 +334,19 @@ function restartLevel() {
 }
 
 function playBackgroundMusic() {
-    bgSound.loop = true; // 設置為循環播放
-    bgSound.volume = 0.5; // 可選：設置初始音量 (0.0 到 1.0)
+    bgSound.loop = true;
+    bgSound.volume = 0.5;
     bgSound.play().catch(error => {
         console.error("播放背景音樂失敗:", error);
-        // 如果自動播放被阻止，您可能需要在用戶互動後再嘗試播放
     });
+}
+
+function startGame() {
+    startMenu.style.display = 'none';
+    gameWrapper.style.display = 'flex';
+    currentLevel = 0;
+    loadLevel();
+    playBackgroundMusic();
 }
 
 // 事件監聽
@@ -349,14 +357,13 @@ rightBtn.addEventListener('click', () => movePlayer(1, 0));
 loadBtn.addEventListener('click', loadGame);
 restartBtn.addEventListener('click', restartLevel);
 saveBtn.addEventListener('click', saveGame);
+startGameBtn.addEventListener('click', startGame);
+loadGameBtnMenu.addEventListener('click', loadGame); // 載入遊戲按鈕也直接調用 loadGame
 
 window.onload = () => {
     if (localStorage.getItem('sokobanGame')) {
-        messageElement.textContent = '發現儲存的遊戲，點擊 "載入遊戲" 繼續。';
-        setTimeout(() => {
-            messageElement.textContent = '';
-        }, 3000);
+        // 如果有儲存的遊戲，開始選單上的載入按鈕應該可見
+    } else {
+        loadGameBtnMenu.style.display = 'none'; // 如果沒有儲存，隱藏載入按鈕
     }
-    loadLevel();
-    playBackgroundMusic(); // 調用函數播放背景音樂
 };
