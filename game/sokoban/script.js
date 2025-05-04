@@ -4,6 +4,7 @@ const upBtn = document.getElementById('upBtn');
 const downBtn = document.getElementById('downBtn');
 const leftBtn = document.getElementById('leftBtn');
 const rightBtn = document.getElementById('rightBtn');
+const saveBtn = document.getElementById('saveBtn');
 const loadBtn = document.getElementById('loadBtn');
 const restartBtn = document.getElementById('restartBtn');
 const winSound = document.getElementById('winSound');
@@ -107,8 +108,10 @@ let map;
 let playerPos;
 let boxesPos = [];
 let targetsPos = [];
+let levelCompleted = false; // 新增標誌，防止多次過關
 
 function loadLevel() {
+    levelCompleted = false; // 在載入新關卡時重置過關標誌
     if (currentLevel >= levels.length) {
         messageElement.textContent = '所有關卡已完成！';
         return;
@@ -165,30 +168,30 @@ function renderMap() {
             switch (map[y][x]) {
                 case '#':
                     cell.classList.add('wall');
-                    cell.textContent = '#';
+                    // cell.textContent = '#';
                     break;
                 case ' ':
                     cell.classList.add('empty');
                     break;
                 case '$':
                     cell.classList.add('box');
-                    cell.textContent = '$';
+                    // cell.textContent = '$';
                     break;
                 case '.':
                     cell.classList.add('target');
-                    cell.textContent = '.';
+                    // cell.textContent = '.';
                     break;
                 case '@':
                     cell.classList.add('player');
-                    cell.textContent = '@';
+                    // cell.textContent = '@';
                     break;
                 case '*':
                     cell.classList.add('box', 'on-target');
-                    cell.textContent = '*';
+                    // cell.textContent = '*';
                     break;
                 case '+':
                     cell.classList.add('player', 'on-target');
-                    cell.textContent = '+';
+                    // cell.textContent = '+';
                     break;
             }
             gameContainer.appendChild(cell);
@@ -270,14 +273,19 @@ function moveBox(oldX, oldY, newX, newY) {
 }
 
 function checkWin() {
-    const allBoxesOnTargets = findAllChar('$').length === 0;
-    if (allBoxesOnTargets) {
+    const boxesOnTargets = findAllChar('*').length;
+    const totalTargets = targetsPos.length;
+
+    if (boxesOnTargets === totalTargets && !levelCompleted) { // 檢查是否過關且尚未標記為已完成
         messageElement.textContent = '恭喜過關！';
         winSound.play();
+        levelCompleted = true; // 標記為已完成
         setTimeout(() => {
             currentLevel++;
             loadLevel();
         }, 1500);
+    } else if (boxesOnTargets === totalTargets && levelCompleted) {
+        // 防止在過關動畫期間再次觸發
     } else {
         messageElement.textContent = '';
     }
@@ -330,6 +338,7 @@ leftBtn.addEventListener('click', () => movePlayer(-1, 0));
 rightBtn.addEventListener('click', () => movePlayer(1, 0));
 loadBtn.addEventListener('click', loadGame);
 restartBtn.addEventListener('click', restartLevel);
+saveBtn.addEventListener('click', saveGame);
 
 window.onload = () => {
     if (localStorage.getItem('sokobanGame')) {
