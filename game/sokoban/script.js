@@ -239,5 +239,64 @@ downBtn.addEventListener('click', () => movePlayer(0, 1));
 leftBtn.addEventListener('click', () => movePlayer(-1, 0));
 rightBtn.addEventListener('click', () => movePlayer(1, 0));
 
+const saveBtn = document.getElementById('saveBtn');
+const loadBtn = document.getElementById('loadBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+function saveGame() {
+    const gameState = {
+        currentLevel: currentLevel,
+        map: map,
+        playerPos: playerPos,
+        boxesPos: boxesPos
+    };
+    localStorage.setItem('sokobanGame', JSON.stringify(gameState));
+    messageElement.textContent = '遊戲已儲存！';
+    setTimeout(() => {
+        messageElement.textContent = '';
+    }, 1500);
+}
+
+function loadGame() {
+    const savedGame = localStorage.getItem('sokobanGame');
+    if (savedGame) {
+        const gameState = JSON.parse(savedGame);
+        currentLevel = gameState.currentLevel;
+        map = gameState.map;
+        playerPos = gameState.playerPos;
+        boxesPos = gameState.boxesPos;
+        renderMap();
+        messageElement.textContent = '遊戲已載入！';
+    } else {
+        messageElement.textContent = '沒有儲存的遊戲！';
+    }
+    setTimeout(() => {
+        messageElement.textContent = '';
+    }, 1500);
+}
+
+function restartLevel() {
+    loadLevel(); // 重新載入當前關卡
+    messageElement.textContent = '關卡已重新開始！';
+    setTimeout(() => {
+        messageElement.textContent = '';
+    }, 1500);
+}
+
+// 事件監聽器
+saveBtn.addEventListener('click', saveGame);
+loadBtn.addEventListener('click', loadGame);
+restartBtn.addEventListener('click', restartLevel);
+
+// 檢查是否有儲存的遊戲，並提供載入選項 (可選)
+window.onload = () => {
+    if (localStorage.getItem('sokobanGame')) {
+        messageElement.textContent = '發現儲存的遊戲，點擊 "載入遊戲" 繼續。';
+        setTimeout(() => {
+            messageElement.textContent = '';
+        }, 3000);
+    }
+};
+
 // 載入第一關
 loadLevel();
