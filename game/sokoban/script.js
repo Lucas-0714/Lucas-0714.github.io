@@ -161,30 +161,30 @@ function renderMap() {
             switch (map[y][x]) {
                 case '#':
                     cell.classList.add('wall');
-                    cell.textContent = '#'; // 可選：顯示牆壁符號
+                    // cell.textContent = '#'; // 可選：顯示牆壁符號
                     break;
                 case ' ':
                     cell.classList.add('empty');
                     break;
                 case '$':
                     cell.classList.add('box');
-                    cell.textContent = '$'; // 可選：顯示箱子符號
+                    // cell.textContent = '$'; // 可選：顯示箱子符號
                     break;
                 case '.':
                     cell.classList.add('target');
-                    cell.textContent = '.'; // 可選：顯示目標點符號
+                    // cell.textContent = '.'; // 可選：顯示目標點符號
                     break;
                 case '@':
                     cell.classList.add('player');
-                    cell.textContent = '@'; // 可選：顯示玩家符號
+                    // cell.textContent = '@'; // 可選：顯示玩家符號
                     break;
                 case '*':
                     cell.classList.add('box', 'on-target');
-                    cell.textContent = '*'; // 可選：顯示在目標上的箱子符號
+                    // cell.textContent = '*'; // 可選：顯示在目標上的箱子符號
                     break;
                 case '+':
                     cell.classList.add('player', 'on-target');
-                    cell.textContent = '+'; // 可選：顯示在目標上的玩家符號
+                    // cell.textContent = '+'; // 可選：顯示在目標上的玩家符號
                     break;
             }
             gameContainer.appendChild(cell);
