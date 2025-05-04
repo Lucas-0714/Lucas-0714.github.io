@@ -6,6 +6,7 @@ body {
     min-height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
+    overflow: auto; /* 允許 body 內容超出時滾動 */
 }
 
 h1 {
@@ -46,6 +47,8 @@ h1 {
     display: none; /* 預設隱藏 */
     align-items: center;
     flex-direction: column;
+    max-width: 100%; /* 限制遊戲區域寬度 */
+    overflow-x: auto; /* 允許水平滾動，如果內容超出 */
 }
 
 #game-container {
