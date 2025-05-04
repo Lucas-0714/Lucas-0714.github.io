@@ -78,17 +78,17 @@ h1 {
 }
 
 .box {
-    background-color: #c28b25;
+    background-color: #f2b007;
     color: white;
     border-radius: 5px;
 }
 
 .target {
-    background-color: #25c298;
+    background-color: #24d44a;
 }
 
 .player {
-    background-color: #c57ff0;
+    background-color: #03cafc;
     border-radius: 50%;
 }
 
