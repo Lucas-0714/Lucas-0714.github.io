@@ -9,6 +9,7 @@ const loadBtn = document.getElementById('loadBtn');
 const restartBtn = document.getElementById('restartBtn');
 const winSound = document.getElementById('winSound');
 const deadlockSound = document.getElementById('deadlockSound');
+const bgSound = document.getElementById('bgSound');
 
 let currentLevel = 0;
 const levels = [
@@ -331,6 +332,15 @@ function restartLevel() {
     }, 1500);
 }
 
+function playBackgroundMusic() {
+    bgSound.loop = true; // 設置為循環播放
+    bgSound.volume = 0.5; // 可選：設置初始音量 (0.0 到 1.0)
+    bgSound.play().catch(error => {
+        console.error("播放背景音樂失敗:", error);
+        // 如果自動播放被阻止，您可能需要在用戶互動後再嘗試播放
+    });
+}
+
 // 事件監聽
 upBtn.addEventListener('click', () => movePlayer(0, -1));
 downBtn.addEventListener('click', () => movePlayer(0, 1));
@@ -348,4 +358,5 @@ window.onload = () => {
         }, 3000);
     }
     loadLevel();
+    playBackgroundMusic(); // 調用函數播放背景音樂
 };
