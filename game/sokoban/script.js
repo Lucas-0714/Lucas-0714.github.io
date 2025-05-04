@@ -161,16 +161,25 @@ function renderMap() {
 
     const numCols = map[0].length;
     const numRows = map.length;
-    const cellSize = 40; // 與 .cell 的寬度和高度一致
+    const gameWrapper = document.getElementById('game-wrapper');
+    const wrapperWidth = gameWrapper.offsetWidth > 0 ? gameWrapper.offsetWidth : window.innerWidth * 0.95; // 取得 game-wrapper 的寬度，或使用視窗寬度的 95% 作為預設
+    const wrapperHeight = gameWrapper.offsetHeight > 0 ? gameWrapper.offsetHeight : window.innerHeight * 0.6; // 取得 game-wrapper 的高度，或使用視窗高度的 60% 作為預設
+
+    // 計算 cell 的大小，目標是盡可能填滿 wrapper，同時保持是正方形
+    const cellWidth = Math.min(wrapperWidth / numCols, wrapperHeight / numRows);
+    const cellSize = Math.floor(cellWidth * 0.98); // 稍微縮小一點，留一些間距
 
     gameContainer.style.gridTemplateColumns = `repeat(${numCols}, ${cellSize}px)`;
     gameContainer.style.gridTemplateRows = `repeat(${numRows}, ${cellSize}px)`;
-    gameContainer.style.gap = '0';
+    gameContainer.style.gap = '1px'; // 可以調整 cell 之間的間距
 
     for (let y = 0; y < numRows; y++) {
         for (let x = 0; x < numCols; x++) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
+            cell.style.width = `${cellSize}px`;
+            cell.style.height = `${cellSize}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.6)}px`; // 根據 cell 大小調整字體大小
             switch (map[y][x]) {
                 case '#':
                     cell.classList.add('wall');
@@ -203,13 +212,6 @@ function renderMap() {
             gameContainer.appendChild(cell);
         }
     }
-}
-
-function isObstacle(x, y) {
-    if (y < 0 || y >= map.length || x < 0 || x >= map[y].length || map[y][x] === '#') {
-        return true;
-    }
-    return boxesPos.some(b => b.x === x && b.y === y);
 }
 
 function isTarget(x, y) {
