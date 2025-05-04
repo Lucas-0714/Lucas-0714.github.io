@@ -231,6 +231,13 @@ function isDeadlock() {
     return false;
 }
 
+function isObstacle(x, y) {
+    if (y < 0 || y >= map.length || x < 0 || x >= map[y].length || map[y][x] === '#') {
+        return true;
+    }
+    return boxesPos.some(b => b.x === x && b.y === y);
+}
+
 function movePlayer(dx, dy) {
     if (!playerPos) return;
     const newX = playerPos.x + dx;
