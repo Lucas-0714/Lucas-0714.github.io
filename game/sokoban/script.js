@@ -117,6 +117,7 @@ let levelCompleted = false;
 
 function loadLevel() {
     levelCompleted = false;
+    messageElement.textContent = ''; // 在載入新關卡時清除訊息
     if (currentLevel >= levels.length) {
         messageElement.textContent = '所有關卡已完成！';
         return;
