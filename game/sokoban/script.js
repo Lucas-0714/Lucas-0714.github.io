@@ -125,10 +125,10 @@ function loadLevel() {
             messageElement.textContent = '所有關卡已完成！';
             return;
         }
-        map = levels[currentLevel].map(row => row.split(''));
         playerPos = findChar('@');
         boxesPos = findAllChar('$');
     }
+    map = levels[currentLevel].map(row => row.split(''));
     targetsPos = findAllChar('.');
     renderMap();
 }
