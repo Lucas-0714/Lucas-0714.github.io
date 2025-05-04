@@ -3,109 +3,85 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100vh;
     margin: 0;
-    padding: 20px;
     background-color: #f0f0f0;
 }
 
 h1 {
-    margin-bottom: 20px;
-    color: #333;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 #game-container {
     display: grid;
     border: 2px solid #333;
-    background-color: #ddd;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .cell {
+    width: 40px; /* 調整格子大小 */
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 20px;
-    line-height: 1;
-    box-sizing: border-box;
+    font-size: 24px; /* 調整字體大小 */
 }
 
 .wall {
-    background-color: #555;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: #333;
+    color: #fff; /* 可選：如果牆壁有文字 */
 }
 
 .empty {
     background-color: #eee;
 }
 
-.target {
-    background-color: #ffcc00;
-}
-
 .box {
-    background-color: #cc6600;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: orange;
+    color: white;
     border-radius: 5px;
 }
 
+.target {
+    background-color: lightgreen;
+}
+
 .player {
-    background-color: #007bff;
-    color: #fff;
+    background-color: lightblue;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .on-target {
-    border: 2px dotted #fff;
+    background-color: gold;
 }
 
 #message {
-    margin-bottom: 20px;
+    margin-top: 10px;
     font-size: 1.2em;
-    color: green;
+    text-align: center;
 }
 
 #controls {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-top: 20px;
 }
 
 #controls button {
-    padding: 10px 15px;
-    font-size: 1.2em;
     margin: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
     cursor: pointer;
-    background-color: #fff;
-    color: #333;
-}
-
-#controls button:hover {
-    background-color: #f0f0f0;
-}
-
-#controls button:active {
-    background-color: #ddd;
 }
 
 #controls .flex {
     display: flex;
-}
-
-#controls .flex button {
-    width: 50px; /* 調整按鈕寬度 */
+    gap: 10px; /* 調整左右按鈕之間的間距 */
+    margin-bottom: 5px;
 }
 
 #controls .flex button:nth-child(2) {
-    visibility: hidden; /* 隱藏中間的按鈕 */
+    visibility: hidden; /* 隱藏中間的空白按鈕 */
 }
