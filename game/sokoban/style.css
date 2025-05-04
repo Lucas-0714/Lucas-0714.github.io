@@ -20,17 +20,17 @@ h1 {
 }
 
 .cell {
-    width: 40px; /* 調整格子大小 */
+    width: 40px;
     height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px; /* 調整字體大小 */
+    font-size: 24px;
 }
 
 .wall {
     background-color: #333;
-    color: #fff; /* 可選：如果牆壁有文字 */
+    color: #fff;
 }
 
 .empty {
@@ -71,17 +71,28 @@ h1 {
 
 #controls button {
     margin: 5px;
-    padding: 10px 20px;
-    font-size: 1em;
+    padding: 15px 25px;
+    font-size: 1.2em;
     cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#controls button:active {
+    background-color: #eee;
 }
 
 #controls .flex {
     display: flex;
-    gap: 10px; /* 調整左右按鈕之間的間距 */
+    gap: 10px;
     margin-bottom: 5px;
 }
 
+#controls .flex button {
+    padding: 15px 30px;
+}
+
 #controls .flex button:nth-child(2) {
-    visibility: hidden; /* 隱藏中間的空白按鈕 */
+    visibility: hidden;
 }
