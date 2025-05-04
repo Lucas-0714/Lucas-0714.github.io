@@ -1,9 +1,14 @@
+
 const gameContainer = document.getElementById('game-container');
 const messageElement = document.getElementById('message');
 const upBtn = document.getElementById('upBtn');
 const downBtn = document.getElementById('downBtn');
 const leftBtn = document.getElementById('leftBtn');
 const rightBtn = document.getElementById('rightBtn');
+const loadBtn = document.getElementById('loadBtn');
+const restartBtn = document.getElementById('restartBtn');
+const winSound = document.getElementById('winSound');
+const bgSound = document.getElementById('bgSound'); // 取得背景音樂元素
 
 let currentLevel = 0;
 const levels = [
@@ -156,24 +161,30 @@ function renderMap() {
             switch (map[y][x]) {
                 case '#':
                     cell.classList.add('wall');
+                    cell.textContent = '#'; // 可選：顯示牆壁符號
                     break;
                 case ' ':
                     cell.classList.add('empty');
                     break;
                 case '$':
                     cell.classList.add('box');
+                    cell.textContent = '$'; // 可選：顯示箱子符號
                     break;
                 case '.':
                     cell.classList.add('target');
+                    cell.textContent = '.'; // 可選：顯示目標點符號
                     break;
                 case '@':
                     cell.classList.add('player');
+                    cell.textContent = '@'; // 可選：顯示玩家符號
                     break;
                 case '*':
                     cell.classList.add('box', 'on-target');
+                    cell.textContent = '*'; // 可選：顯示在目標上的箱子符號
                     break;
                 case '+':
                     cell.classList.add('player', 'on-target');
+                    cell.textContent = '+'; // 可選：顯示在目標上的玩家符號
                     break;
             }
             gameContainer.appendChild(cell);
@@ -224,6 +235,7 @@ function checkWin() {
     const allBoxesOnTargets = findAllChar('$').length === 0;
     if (allBoxesOnTargets) {
         messageElement.textContent = '恭喜過關！';
+        winSound.play();
         setTimeout(() => {
             currentLevel++;
             loadLevel();
@@ -232,16 +244,6 @@ function checkWin() {
         messageElement.textContent = '';
     }
 }
-
-// 事件監聽
-upBtn.addEventListener('click', () => movePlayer(0, -1));
-downBtn.addEventListener('click', () => movePlayer(0, 1));
-leftBtn.addEventListener('click', () => movePlayer(-1, 0));
-rightBtn.addEventListener('click', () => movePlayer(1, 0));
-
-const saveBtn = document.getElementById('saveBtn');
-const loadBtn = document.getElementById('loadBtn');
-const restartBtn = document.getElementById('restartBtn');
 
 function saveGame() {
     const gameState = {
@@ -283,12 +285,21 @@ function restartLevel() {
     }, 1500);
 }
 
-// 事件監聽器
-saveBtn.addEventListener('click', saveGame);
+// 事件監聽
+upBtn.addEventListener('click', () => movePlayer(0, -1));
+downBtn.addEventListener('click', () => movePlayer(0, 1));
+leftBtn.addEventListener('click', () => movePlayer(-1, 0));
+rightBtn.addEventListener('click', () => movePlayer(1, 0));
 loadBtn.addEventListener('click', loadGame);
 restartBtn.addEventListener('click', restartLevel);
 
-// 檢查是否有儲存的遊戲，並提供載入選項 (可選)
+// 可選：播放背景音樂
+function playBackgroundMusic() {
+    bgSound.loop = true;
+    bgSound.play();
+}
+
+// 可選：在頁面載入後開始播放背景音樂
 window.onload = () => {
     if (localStorage.getItem('sokobanGame')) {
         messageElement.textContent = '發現儲存的遊戲，點擊 "載入遊戲" 繼續。';
@@ -296,7 +307,9 @@ window.onload = () => {
             messageElement.textContent = '';
         }, 3000);
     }
+    // playBackgroundMusic(); // 取消註解以啟用背景音樂
+    loadLevel();
 };
 
 // 載入第一關
-loadLevel();
+// loadLevel(); // 確保 loadLevel 在 window.onload 中被呼叫
