@@ -13,7 +13,7 @@ const bgSound = document.getElementById('bgSound');
 const startMenu = document.getElementById('start-menu');
 const gameWrapper = document.getElementById('game-wrapper');
 const startGameBtn = document.getElementById('startGameBtn');
-const loadGameBtnMenu = document.getElementById('loadBtn');
+const loadGameBtnMenu = document.getElementById('loadGameBtn');
 
 let currentLevel = 0;
 const levels = [
