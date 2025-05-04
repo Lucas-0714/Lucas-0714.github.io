@@ -130,6 +130,7 @@ function loadLevel() {
     }
     map = levels[currentLevel].map(row => row.split(''));
     targetsPos = findAllChar('.');
+    let load = false
     renderMap();
 }
 
