@@ -288,7 +288,7 @@ function checkWin() {
         setTimeout(() => {
             currentLevel++;
             loadLevel();
-        }, 1500);
+        }, 6000);
     }
 }
 
