@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>線上數獨遊戲</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>數獨 Sudoku</h1>
+
+    <div id="game-controls">
+        <button id="new-game-btn">新遊戲</button>
+        <button id="solve-btn">看答案</button>
+        <select id="difficulty-select" style="display: none;"> <option value="easy">簡單</option>
+            <option value="medium">中等</option>
+            <option value="hard">困難</option>
+        </select>
+    </div>
+
+    <div id="sudoku-board">
+        </div>
+
+    <div id="message-area"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
