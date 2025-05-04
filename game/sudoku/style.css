@@ -1,0 +1,137 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f0f0;
+    margin-top: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+#game-controls {
+    margin-bottom: 20px;
+}
+
+#game-controls button, #game-controls select {
+    padding: 10px 15px;
+    font-size: 1em;
+    margin: 0 5px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+#game-controls button:hover {
+    background-color: #eee;
+}
+
+#sudoku-board {
+    display: grid;
+    grid-template-columns: repeat(9, auto);
+    grid-template-rows: repeat(9, auto);
+    border: 3px solid black;
+    width: fit-content; /* 讓容器寬度自適應內容 */
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+
+.sudoku-cell {
+    width: 40px; /* 或使用 vw/vh 單位 */
+    height: 40px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em; /* 調整數字大小 */
+    font-weight: bold;
+    box-sizing: border-box; /* 確保 border 不會增加格子大小 */
+}
+
+/* 使用 input 元素方便輸入 */
+.sudoku-cell input {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: inherit; /* 繼承父元素字體大小 */
+    font-weight: inherit;
+    border: none;
+    outline: none;
+    padding: 0;
+    background-color: transparent; /* 讓背景透明 */
+    color: #007bff; /* 輸入數字的顏色 */
+}
+
+.sudoku-cell input:disabled {
+    background-color: transparent; /* 預設數字無背景 */
+    color: #333; /* 預設數字的顏色 */
+    font-weight: bold;
+}
+
+/* 標示 3x3 宮格的粗邊框 */
+.sudoku-cell:nth-child(3n) {
+    border-right: 2px solid black;
+}
+.sudoku-cell:nth-child(9n) {
+    border-right: 1px solid #ccc; /* 修正最右邊的重複粗框 */
+}
+#sudoku-board > div:nth-child(n+19):nth-child(-n+27), /* 第 3 行下方 */
+#sudoku-board > div:nth-child(n+46):nth-child(-n+54)  /* 第 6 行下方 */
+{
+    border-bottom: 2px solid black;
+}
+
+/* 行的頂部粗邊框 */
+#sudoku-board > div:nth-child(-n+9) { /* 第 1 行上方 */
+     border-top: 1px solid #ccc; /* 移除預設的頂部粗框 */
+}
+#sudoku-board > div:nth-child(n+1) {
+    border-top: 1px solid #ccc;
+}
+#sudoku-board > div:nth-child(3n+1) {
+    border-left: 1px solid #ccc; /* 移除預設的左側粗框 */
+}
+#sudoku-board > div:nth-child(n+1):nth-child(-n+9), /* 第 1-9 格 */
+#sudoku-board > div:nth-child(n+28):nth-child(-n+36), /* 第 28-36 格 */
+#sudoku-board > div:nth-child(n+55):nth-child(-n+63) { /* 第 55-63 格 */
+    /* 可能需要調整頂部邊框 */
+}
+
+
+/* 輸入錯誤的樣式 */
+.sudoku-cell input.error {
+    background-color: #ffdddd; /* 淡紅色背景 */
+    color: red;
+}
+
+/* 當前選中的格子樣式 */
+.sudoku-cell input:focus {
+    background-color: #e0efff; /* 淡藍色背景 */
+}
+
+#message-area {
+    margin-top: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: green;
+    min-height: 1.5em; /* 避免訊息消失時跳動 */
+}
+#message-area.error {
+    color: red;
+}
+
+/* 針對小螢幕調整 */
+@media (max-width: 450px) {
+    .sudoku-cell {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2em;
+    }
+     #game-controls button, #game-controls select {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+}
