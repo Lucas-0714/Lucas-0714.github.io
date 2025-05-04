@@ -49,7 +49,7 @@ h1 {
     flex-direction: column;
     max-width: 100%; /* 限制遊戲區域寬度 */
     overflow-x: auto; /* 允許水平滾動，如果內容超出 */
-    width: 100vw;
+    width: 90vw;
 }
 
 #game-container {
