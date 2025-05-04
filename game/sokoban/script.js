@@ -114,9 +114,11 @@ let playerPos;
 let boxesPos = [];
 let targetsPos = [];
 let levelCompleted = false;
+let load = false;
 
 function loadLevel() {
-    if (localStorage.getItem('sokobanGame') === null) {
+    if (load === true) {
+    } else {
         levelCompleted = false;
         messageElement.textContent = ''; // 在載入新關卡時清除訊息
         if (currentLevel >= levels.length) {
@@ -319,6 +321,7 @@ function saveGame() {
 }
 
 function loadGame() {
+    let load = true;
     const savedGame = localStorage.getItem('sokobanGame');
     if (savedGame) {
         const gameState = JSON.parse(savedGame);
