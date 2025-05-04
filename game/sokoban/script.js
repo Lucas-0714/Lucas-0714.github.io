@@ -121,9 +121,10 @@ function loadLevel() {
     if (currentLevel >= levels.length) {
         messageElement.textContent = '所有關卡已完成！';
         return;
+    }
+    map = levels[currentLevel].map(row => row.split(''));
     playerPos = findChar('@');
     boxesPos = findAllChar('$');
-    map = levels[currentLevel].map(row => row.split(''));
     targetsPos = findAllChar('.');
     renderMap();
 }
@@ -160,9 +161,9 @@ function renderMap() {
 
     const numCols = map[0].length;
     const numRows = map.length;
-    const gameWrapper = document.getElementById('game-wrapper');
-    const wrapperWidth = gameWrapper.offsetWidth > 0 ? gameWrapper.offsetWidth : window.innerWidth * 0.95; // 取得 game-wrapper 的寬度，或使用視窗寬度的 95% 作為預設
-    const wrapperHeight = gameWrapper.offsetHeight > 0 ? gameWrapper.offsetHeight : window.innerHeight * 0.6; // 取得 game-wrapper 的高度，或使用視窗高度的 60% 作為預設
+    const gameWrapperElement = document.getElementById('game-wrapper');
+    const wrapperWidth = gameWrapperElement.offsetWidth > 0 ? gameWrapperElement.offsetWidth : window.innerWidth * 0.95; // 取得 game-wrapper 的寬度，或使用視窗寬度的 95% 作為預設
+    const wrapperHeight = gameWrapperElement.offsetHeight > 0 ? gameWrapperElement.offsetHeight : window.innerHeight * 0.6; // 取得 game-wrapper 的高度，或使用視窗高度的 60% 作為預設
 
     // 計算 cell 的大小，目標是盡可能填滿 wrapper，同時保持是正方形
     const cellWidth = Math.min(wrapperWidth / numCols, wrapperHeight / numRows);
@@ -182,30 +183,24 @@ function renderMap() {
             switch (map[y][x]) {
                 case '#':
                     cell.classList.add('wall');
-                    // cell.textContent = '#';
                     break;
                 case ' ':
                     cell.classList.add('empty');
                     break;
                 case '$':
                     cell.classList.add('box');
-                    // cell.textContent = '$';
                     break;
                 case '.':
                     cell.classList.add('target');
-                    // cell.textContent = '.';
                     break;
                 case '@':
                     cell.classList.add('player');
-                    // cell.textContent = '@';
                     break;
                 case '*':
                     cell.classList.add('box', 'on-target');
-                    // cell.textContent = '*';
                     break;
                 case '+':
                     cell.classList.add('player', 'on-target');
-                    // cell.textContent = '+';
                     break;
             }
             gameContainer.appendChild(cell);
@@ -374,8 +369,10 @@ loadGameBtnMenu.addEventListener('click', loadGame); // 載入遊戲按鈕也直
 
 window.onload = () => {
     if (localStorage.getItem('sokobanGame')) {
-        // 如果有儲存的遊戲，開始選單上的載入按鈕應該可見
+        loadGameBtnMenu.textContent = '載入遊戲';
+        loadGameBtnMenu.disabled = false;
     } else {
-        loadGameBtnMenu.style.display = 'none'; // 如果沒有儲存，隱藏載入按鈕
+        loadGameBtnMenu.textContent = '沒有儲存的遊戲';
+        loadGameBtnMenu.disabled = true;
     }
 };
