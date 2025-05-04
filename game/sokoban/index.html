@@ -7,24 +7,33 @@
 </head>
 <body>
     <h1>推箱子</h1>
-    <div id="game-container"></div>
-    <div id="message"></div>
-    <div id="controls">
-        <button id="upBtn">↑</button>
-        <div class="flex;">
-            <button id="leftBtn">←</button>
-            <button>　</button>
-            <button id="rightBtn">→</button>
-        </div>
-        <button id="downBtn">↓</button>
-        <br>
-        <button id="saveBtn">儲存遊戲</button>
+
+    <div id="start-menu">
+        <h2>歡迎來到推箱子！</h2>
+        <button id="startGameBtn">開始遊戲</button>
         <button id="loadBtn">載入遊戲</button>
-        <button id="restartBtn">重新開始</button>
     </div>
-    <audio id="winSound" src="win.wav" preload="auto"></audio>
-    <audio id="bgSound" src="bg.wav" preload="auto"></audio>
-    <audio id="deadlockSound" src="deadlock.wav" preload="auto"></audio>
+
+    <div id="game-wrapper" style="display: none;">
+        <div id="game-container"></div>
+        <div id="message"></div>
+        <div id="controls">
+            <button id="upBtn">↑</button>
+            <div class="flex;">
+                <button id="leftBtn">←</button>
+                <button>　</button>
+                <button id="rightBtn">→</button>
+            </div>
+            <button id="downBtn">↓</button>
+            <br>
+            <button id="saveBtn">儲存遊戲</button>
+            <button id="restartBtn">重新開始</button>
+        </div>
+    </div>
+
+    <audio id="winSound" src="Classical Piano.wav" preload="auto"></audio>
+    <audio id="deadlockSound" src="Lose.wav" preload="auto"></audio>
+    <audio id="bgSound" src="Cave.wav" preload="auto"></audio>
     <script src="script.js"></script>
 </body>
 </html>
