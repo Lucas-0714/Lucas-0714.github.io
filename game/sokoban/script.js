@@ -116,15 +116,17 @@ let targetsPos = [];
 let levelCompleted = false;
 
 function loadLevel() {
-    levelCompleted = false;
-    messageElement.textContent = ''; // 在載入新關卡時清除訊息
-    if (currentLevel >= levels.length) {
-        messageElement.textContent = '所有關卡已完成！';
-        return;
+    if (localStorage.getItem('sokobanGame') === null) {
+        levelCompleted = false;
+        messageElement.textContent = ''; // 在載入新關卡時清除訊息
+        if (currentLevel >= levels.length) {
+            messageElement.textContent = '所有關卡已完成！';
+            return;
+        }
+        map = levels[currentLevel].map(row => row.split(''));
+        playerPos = findChar('@');
+        boxesPos = findAllChar('$');
     }
-    map = levels[currentLevel].map(row => row.split(''));
-    playerPos = findChar('@');
-    boxesPos = findAllChar('$');
     targetsPos = findAllChar('.');
     renderMap();
 }
