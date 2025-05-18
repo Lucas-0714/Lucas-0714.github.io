@@ -1,0 +1,98 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+#game-board {
+    position: relative;
+    margin: 20px 0;
+}
+
+.hexagon-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: -15px; /* 調整六角形垂直間距 */
+}
+
+.hexagon {
+    width: 50px;
+    height: 57.74px; /* height = width * sqrt(3) */
+    background-color: #ddd;
+    color: #333;
+    border-radius: 5px;
+    margin: 0 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.hexagon::before,
+.hexagon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background-color: inherit;
+    border-radius: inherit;
+}
+
+.hexagon::before {
+    top: -25%;
+    transform: rotate(60deg);
+}
+
+.hexagon::after {
+    bottom: -25%;
+    transform: rotate(-60deg);
+}
+
+.hexagon.filled {
+    background-color: #eee;
+    border: 1px solid #ccc;
+}
+
+.hexagon.correct {
+    background-color: lightgreen;
+}
+
+.hexagon.incorrect {
+    background-color: lightcoral;
+}
+
+.controls button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+#message {
+    margin-top: 20px;
+    font-weight: bold;
+}
