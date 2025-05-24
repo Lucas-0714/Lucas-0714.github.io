@@ -1,5 +1,5 @@
 // 圖片的檔案名稱列表
-const images = ["image1.jpg", "image2.jpg", "image3.jpg"];
+const images = ["sine.jpg", "cosine.jpg"];
 let currentIndex = 0; // 當前顯示圖片的索引
 
 // 獲取 HTML 元素
