@@ -20,7 +20,14 @@ img {
     max-width: 100%;
     height: auto;
     border-radius: 4px;
+    margin-bottom: 15px; /* 調整與文字的間距 */
+}
+
+#imageText { /* 新增樣式 */
+    font-size: 1.1em;
+    color: #555;
     margin-bottom: 20px;
+    line-height: 1.5;
 }
 
 .buttons button {
