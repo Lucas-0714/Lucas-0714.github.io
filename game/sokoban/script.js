@@ -304,7 +304,6 @@ function moveBox(oldX, oldY, newX, newY) {
 }
 
 function checkWin() {
-    const boxesOnTargets = findAllChar('*').length;
     const totalTargets = targetsPos.length + boxesOnTarget;
 
     if (boxesOnTargets === totalTargets && !levelCompleted) {
