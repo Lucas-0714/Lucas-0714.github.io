@@ -134,6 +134,7 @@ let playerPos;
 let boxesPos = [];
 let targetsPos = [];
 let levelCompleted = false;
+let boxesOnTarget = 0;
 
 function loadLevel() {
     levelCompleted = false;
@@ -146,6 +147,7 @@ function loadLevel() {
     playerPos = findChar('@');
     boxesPos = findAllChar('$');
     targetsPos = findAllChar('.');
+    boxesOnTarget = findAllChar('*').length;
     renderMap();
 }
 
@@ -303,7 +305,7 @@ function moveBox(oldX, oldY, newX, newY) {
 
 function checkWin() {
     const boxesOnTargets = findAllChar('*').length;
-    const totalTargets = targetsPos.length;
+    const totalTargets = targetsPos.length + boxesOnTarget;
 
     if (boxesOnTargets === totalTargets && !levelCompleted) {
         messageElement.textContent = '恭喜過關！';
