@@ -7,6 +7,9 @@
     color: #333;
     padding: 30px 20px;
     text-align: center;
+    margin: 0 auto;
+    border-radius: 2.5px;
+    width: 80vw;
 }
 
 .banner h1 {
@@ -33,6 +36,9 @@
 
 body {
     align-items: center;
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .info {
@@ -41,4 +47,26 @@ body {
     padding: 30px 20px;
     text-align: center;
     align-self: center;
+    border-radius: 5px;
+    margin: 10px auto;
+}
+
+.info .block {
+    background-color: #fafafa
+}
+
+.block h2 {
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+.block .id {
+    padding-top: 0px;
+    padding-bottom: 15px;
+    font-size: 18px;
+}
+
+.block img {
+    width: 150px;
+    padding-bottom: 15px;
 }
