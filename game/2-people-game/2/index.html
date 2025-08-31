@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雙人即時繪圖板</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>行動版雙人合作節奏遊戲</title>
     <style>
         body {
             font-family: sans-serif;
@@ -13,181 +13,265 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
-            color: #333;
+            background-color: #121212;
+            color: #fff;
+            overflow: hidden;
         }
-        .container {
+        #gameCanvas {
+            border: 2px solid #fff;
+            background-color: #212121;
+            touch-action: none;
+            width: 100vw;
+            height: 75vh;
+        }
+        .info {
+            margin: 10px 0;
             text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #555;
-            margin-bottom: 10px;
+        #total-score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00e676;
         }
-        canvas {
-            border: 1px solid #ccc;
-            background-color: #fff;
-            cursor: crosshair;
-        }
-        .controls {
-            margin-top: 10px;
+        .player-info {
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            gap: 20px;
         }
-        #colorPicker {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: none;
-            cursor: pointer;
+        .player-score {
+            font-size: 1.5em;
+            font-weight: bold;
         }
-        #colorPicker::-webkit-color-swatch-wrapper {
-            padding: 0;
-        }
-        #colorPicker::-webkit-color-swatch {
-            border: 1px solid #ccc;
-            border-radius: 50%;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1em;
+        .start-button {
+            padding: 15px 30px;
+            font-size: 1.5em;
             cursor: pointer;
             border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: white;
+            border-radius: 50px;
+            background-color: #00e676;
+            color: black;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: background-color 0.3s;
+        }
+        .start-button:hover {
+            background-color: #00c853;
         }
         #status {
+            font-size: 1.2em;
             margin-top: 10px;
-            font-weight: bold;
-            color: #d9534f;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>雙人即時繪圖板</h1>
-    <p>與你的朋友一起作畫！</p>
-    <canvas id="drawingCanvas" width="600" height="400"></canvas>
-    <div class="controls">
-        <input type="color" id="colorPicker" value="#000000">
-        <button id="clearBtn">清除畫布</button>
+<div class="info">
+    <p>總分: <span id="total-score">0</span></p>
+    <div class="player-info">
+        <p>玩家 1: <span id="p1-score" class="player-score">0</span></p>
+        <p>玩家 2: <span id="p2-score" class="player-score">0</span></p>
     </div>
-    <p id="status">連線中...</p>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div class="info">
+    <button id="startButton" class="start-button">開始遊戲</button>
+    <p id="status">等待連線...</p>
 </div>
 
 <script>
-    const canvas = document.getElementById('drawingCanvas');
+    const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const colorPicker = document.getElementById('colorPicker');
-    const clearBtn = document.getElementById('clearBtn');
+    const totalScoreText = document.getElementById('total-score');
+    const p1ScoreText = document.getElementById('p1-score');
+    const p2ScoreText = document.getElementById('p2-score');
     const statusText = document.getElementById('status');
+    const startButton = document.getElementById('startButton');
 
-    let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
-    let currentColor = '#000000';
+    const aspectRatio = 800 / 600;
+    let canvasWidth = window.innerWidth;
+    let canvasHeight = window.innerHeight * 0.75;
 
-    // 建立 WebSocket 連線
-    // 使用一個公開的 Echo WebSocket 服務
-    const ws = new WebSocket('wss://echo.websocket.events');
-
-    ws.onopen = () => {
-        statusText.textContent = "連線成功！";
-        statusText.style.color = '#5cb85c';
-    };
-
-    ws.onerror = (error) => {
-        statusText.textContent = "連線失敗，請檢查網路。";
-        statusText.style.color = '#d9534f';
-        console.error('WebSocket Error:', error);
-    };
-
-    ws.onclose = () => {
-        statusText.textContent = "連線已中斷。";
-        statusText.style.color = '#d9534f';
-    };
-
-    // 接收來自另一位玩家的繪圖資料
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'drawing') {
-            drawLine(data.x1, data.y1, data.x2, data.y2, data.color);
-        } else if (data.type === 'clear') {
-            clearCanvas();
-        }
-    };
-
-    // 滑鼠事件
-    canvas.addEventListener('mousedown', (e) => {
-        isDrawing = true;
-        [lastX, lastY] = [e.offsetX, e.offsetY];
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-        if (!isDrawing || ws.readyState !== WebSocket.OPEN) return;
+    // 調整 Canvas 尺寸以適應行動裝置
+    function resizeCanvas() {
+        const displayWidth = window.innerWidth;
+        const displayHeight = window.innerHeight * 0.75;
         
-        // 取得當前繪圖資訊
-        const data = {
-            type: 'drawing',
-            x1: lastX,
-            y1: lastY,
-            x2: e.offsetX,
-            y2: e.offsetY,
-            color: currentColor
-        };
+        if (displayWidth / displayHeight > aspectRatio) {
+            canvasWidth = displayHeight * aspectRatio;
+            canvasHeight = displayHeight;
+        } else {
+            canvasWidth = displayWidth;
+            canvasHeight = displayWidth / aspectRatio;
+        }
 
-        // 畫線
-        drawLine(data.x1, data.y1, data.x2, data.y2, data.color);
-
-        // 將繪圖資料傳送給伺服器
-        ws.send(JSON.stringify(data));
-
-        [lastX, lastY] = [e.offsetX, e.offsetY];
-    });
-
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseout', () => isDrawing = false);
-
-    // 繪圖函式
-    function drawLine(x1, y1, x2, y2, color) {
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        draw(); // 重新繪製畫面
     }
 
-    // 顏色選擇器
-    colorPicker.addEventListener('change', (e) => {
-        currentColor = e.target.value;
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+
+    let scores = { player1: 0, player2: 0 };
+    let notes = [];
+    let noteSpeed = 2.5;
+    let gameStarted = false;
+    let lastNoteTime = 0;
+    const noteInterval = 500;
+    const hitAreaHeight = 100;
+
+    const ws = new WebSocket('wss://ws.postman-echo.com/raw');
+
+    ws.onopen = () => {
+        statusText.textContent = "連線成功！點擊開始遊戲。";
+        statusText.style.color = '#00e676';
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'game_state') {
+            scores.player1 = data.scores.player1;
+            scores.player2 = data.scores.player2;
+            updateScores();
+        } else if (data.type === 'start_game') {
+            startGame();
+        }
+    };
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const hitLineY = canvas.height - 100;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fillRect(0, hitLineY - hitAreaHeight / 2, canvas.width, hitAreaHeight);
+        
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, hitLineY);
+        ctx.lineTo(canvas.width, hitLineY);
+        ctx.stroke();
+
+        notes.forEach(note => {
+            note.y += noteSpeed;
+            ctx.fillStyle = note.color;
+            ctx.fillRect(note.x, note.y, note.width, note.height);
+        });
+
+        notes = notes.filter(note => note.y < canvas.height);
+
+        if (gameStarted) {
+            requestAnimationFrame(draw);
+        }
+    }
+
+    function updateScores() {
+        p1ScoreText.textContent = scores.player1;
+        p2ScoreText.textContent = scores.player2;
+        totalScoreText.textContent = scores.player1 + scores.player2;
+    }
+
+    function generateNote() {
+        if (!gameStarted) return;
+        const now = Date.now();
+        if (now - lastNoteTime > noteInterval) {
+            lastNoteTime = now;
+            const isPlayer1Note = Math.random() < 0.5;
+            const color = isPlayer1Note ? 'cyan' : 'magenta';
+            const x = isPlayer1Note ? Math.random() * (canvas.width / 2 - 50) + 25 : Math.random() * (canvas.width / 2 - 50) + canvas.width / 2 + 25;
+            notes.push({ x: x, y: 0, width: 50, height: 20, isPlayer1Note, color });
+        }
+    }
+
+    // 處理輸入事件的核心函式
+    function handleInput(inputX, inputY) {
+        if (!gameStarted) return;
+        const hitLineY = canvas.height - 100;
+        const hitArea = 50;
+
+        // 新增視覺回饋：在點擊位置短暫顯示一個圓圈
+        const tempEffect = { x: inputX, y: inputY, radius: 15, alpha: 1.0 };
+        function drawEffect() {
+            if (tempEffect.alpha > 0) {
+                ctx.beginPath();
+                ctx.arc(tempEffect.x, tempEffect.y, tempEffect.radius, 0, 2 * Math.PI);
+                ctx.fillStyle = `rgba(255, 255, 255, ${tempEffect.alpha})`;
+                ctx.fill();
+                tempEffect.alpha -= 0.05;
+                requestAnimationFrame(drawEffect);
+            }
+        }
+        drawEffect();
+        
+        notes = notes.filter(note => {
+            if (inputX > note.x && inputX < note.x + note.width &&
+                inputY > note.y && inputY < note.y + note.height &&
+                note.y >= hitLineY - hitArea && note.y <= hitLineY + hitArea) {
+                
+                const isPlayer1Input = inputX < canvas.width / 2;
+                if (isPlayer1Input && note.isPlayer1Note) {
+                    scores.player1++;
+                    sendScoreUpdate();
+                    return false;
+                } else if (!isPlayer1Input && !note.isPlayer1Note) {
+                    scores.player2++;
+                    sendScoreUpdate();
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    // 監聽觸控事件
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        // 處理多點觸控
+        for(let i = 0; i < e.touches.length; i++) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.touches[i].clientX - rect.left;
+            const y = e.touches[i].clientY - rect.top;
+            handleInput(x, y);
+        }
+    }, { passive: false });
+
+    // 監聽滑鼠點擊事件 (方便電腦測試)
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        handleInput(x, y);
     });
 
-    // 清除畫布
-    clearBtn.addEventListener('click', () => {
-        clearCanvas();
-        // 通知伺服器清除畫布
+    function sendScoreUpdate() {
         if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'clear' }));
+            const message = {
+                type: 'game_state',
+                scores: scores
+            };
+            ws.send(JSON.stringify(message));
+        }
+        updateScores();
+    }
+
+    startButton.addEventListener('click', () => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'start_game' }));
         }
     });
 
-    function clearCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function startGame() {
+        if (gameStarted) return;
+        gameStarted = true;
+        statusText.textContent = "遊戲開始！";
+        startButton.style.display = 'none';
+        
+        setInterval(generateNote, 100);
+        draw();
     }
 </script>
 
 </body>
-          </html>
-          
+</html>
