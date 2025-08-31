@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雙人點擊競賽</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        #senderButton {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #senderButton:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        #receiverButton {
+            background-color: #f44336;
+            color: white;
+        }
+        #receiverButton:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>雙人點擊競賽</h1>
+    <div class="game-area">
+        <button id="senderButton">我是發射者 (點我)</button>
+        <button id="receiverButton">我是接收者 (點我)</button>
+    </div>
+    <p id="status">等待連線...</p>
+</div>
+
+<script>
+    // 簡單的模擬雙裝置同步，這裡沒有真正的後端
+    // 玩家需要手動選擇角色，並在各自的裝置上操作。
+    // 真正的同步遊戲需要 WebSocket 伺服器，例如 Socket.IO 或 Pusher。
+
+    const senderButton = document.getElementById('senderButton');
+    const receiverButton = document.getElementById('receiverButton');
+    const statusText = document.getElementById('status');
+    
+    let isSender = false;
+    let isReceiver = false;
+    let ballArrived = false;
+
+    // 發射者角色
+    senderButton.addEventListener('click', () => {
+        if (!isReceiver) { // 確保不是接收者
+            isSender = true;
+            statusText.textContent = "你現在是發射者。點擊螢幕來發射球！";
+            senderButton.style.display = 'none'; // 隱藏按鈕，避免重複設定
+            receiverButton.style.display = 'none';
+            setupSender();
+        }
+    });
+
+    // 接收者角色
+    receiverButton.addEventListener('click', () => {
+        if (!isSender) { // 確保不是發射者
+            isReceiver = true;
+            statusText.textContent = "你現在是接收者。等待球來，然後盡快點擊螢幕！";
+            senderButton.style.display = 'none';
+            receiverButton.style.display = 'none';
+            setupReceiver();
+        }
+    });
+
+    // 發射者的邏輯
+    function setupSender() {
+        document.body.addEventListener('click', (event) => {
+            if (isSender) {
+                // 在這裡我們用 localStorage 來模擬「傳送」資料
+                // 真正的遊戲會將資料傳送到後端
+                const timestamp = Date.now();
+                localStorage.setItem('gameEvent', JSON.stringify({
+                    type: 'ball_sent',
+                    time: timestamp
+                }));
+                statusText.textContent = `球已發射！時間: ${new Date(timestamp).toLocaleTimeString()}`;
+            }
+        });
+    }
+
+    // 接收者的邏輯
+    function setupReceiver() {
+        // 使用一個定時器來「輪詢」localStorage 的更新
+        // 這是為了簡化範例，真實情況應使用 WebSocket
+        setInterval(() => {
+            const eventData = localStorage.getItem('gameEvent');
+            if (eventData) {
+                const event = JSON.parse(eventData);
+                if (event.type === 'ball_sent' && !ballArrived) {
+                    ballArrived = true;
+                    statusText.textContent = "球來了！點擊螢幕來接住它！";
+                    const startTime = Date.now();
+                    
+                    document.body.addEventListener('click', (e) => {
+                        if (ballArrived) {
+                            const endTime = Date.now();
+                            const reactionTime = endTime - startTime;
+                            statusText.textContent = `成功接住！你的反應時間是 ${reactionTime} 毫秒！`;
+                            ballArrived = false; // 重置遊戲
+                            localStorage.removeItem('gameEvent'); // 清除事件
+                        }
+                    }, { once: true }); // 只觸發一次
+                }
+            }
+        }, 100); // 每 100 毫秒檢查一次
+    }
+</script>
+
+</body>
+</html>
