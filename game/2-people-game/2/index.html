@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雙人即時繪圖板</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: crosshair;
+        }
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        #colorPicker {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        #colorPicker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        #colorPicker::-webkit-color-swatch {
+            border: 1px solid #ccc;
+            border-radius: 50%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+        }
+        #status {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>雙人即時繪圖板</h1>
+    <p>與你的朋友一起作畫！</p>
+    <canvas id="drawingCanvas" width="600" height="400"></canvas>
+    <div class="controls">
+        <input type="color" id="colorPicker" value="#000000">
+        <button id="clearBtn">清除畫布</button>
+    </div>
+    <p id="status">連線中...</p>
+</div>
+
+<script>
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    const colorPicker = document.getElementById('colorPicker');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusText = document.getElementById('status');
+
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    let currentColor = '#000000';
+
+    // 建立 WebSocket 連線
+    // 使用一個公開的 Echo WebSocket 服務
+    const ws = new WebSocket('wss://echo.websocket.events');
+
+    ws.onopen = () => {
+        statusText.textContent = "連線成功！";
+        statusText.style.color = '#5cb85c';
+    };
+
+    ws.onerror = (error) => {
+        statusText.textContent = "連線失敗，請檢查網路。";
+        statusText.style.color = '#d9534f';
+        console.error('WebSocket Error:', error);
+    };
+
+    ws.onclose = () => {
+        statusText.textContent = "連線已中斷。";
+        statusText.style.color = '#d9534f';
+    };
+
+    // 接收來自另一位玩家的繪圖資料
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'drawing') {
+            drawLine(data.x1, data.y1, data.x2, data.y2, data.color);
+        } else if (data.type === 'clear') {
+            clearCanvas();
+        }
+    };
+
+    // 滑鼠事件
+    canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing || ws.readyState !== WebSocket.OPEN) return;
+        
+        // 取得當前繪圖資訊
+        const data = {
+            type: 'drawing',
+            x1: lastX,
+            y1: lastY,
+            x2: e.offsetX,
+            y2: e.offsetY,
+            color: currentColor
+        };
+
+        // 畫線
+        drawLine(data.x1, data.y1, data.x2, data.y2, data.color);
+
+        // 將繪圖資料傳送給伺服器
+        ws.send(JSON.stringify(data));
+
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+
+    // 繪圖函式
+    function drawLine(x1, y1, x2, y2, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+
+    // 顏色選擇器
+    colorPicker.addEventListener('change', (e) => {
+        currentColor = e.target.value;
+    });
+
+    // 清除畫布
+    clearBtn.addEventListener('click', () => {
+        clearCanvas();
+        // 通知伺服器清除畫布
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'clear' }));
+        }
+    });
+
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+</script>
+
+</body>
+          </html>
+          
